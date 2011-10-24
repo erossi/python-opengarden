@@ -1,0 +1,6 @@
+doc/html/
+Doxyfile
+.todo
+*.pyc
+*.swp
+

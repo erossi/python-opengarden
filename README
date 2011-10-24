@@ -1,0 +1,4 @@
+socat PTY,link=/tmp/COM1 PTY,link=/tmp/COM2
+
+python /usr/share/doc/python-serial/examples/miniterm.py --port=/tmp/COM2 --baud=9600 --lf
+
