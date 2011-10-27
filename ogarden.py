@@ -1,37 +1,77 @@
 #!/usr/bin/env python
-
-# This file is part of OpenGarden
 # Copyright (C) 2011 Enrico Rossi
 #
-# OpenGarden is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# OpenGarden is distributed in the hope that it will be useful,
+# This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# GNU Lesser General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+""" Python-OpenGarden module API
+
+This module contains the python API to an opengarden device.
+"""
+__author__ = "Enrico Rossi <e.rossi@tecnobrain.com>"
+__date__ = "27 October 2011"
+__version__ = "$Revision: 0.1b $"
+__credits__ = """Nicola Galliani, the "On the field" beta tester.
+Andrea Marabini, the electronic designer.
+Alessandro Dotti Contra, GUI developer.
+"""
 
 import serial
 
 class OpenGarden:
     """
+    The basic class definition
+
     Some usefull docs.
+
+    Examples:
+
+    myobj = OpenGarden       # define the object
+    myobj.connect()          # connect to the device.
+    print myobj.id           # print the id.
+    og.load()
+    print og.sunsite         # print the sunsite attribute.
+    for i in og.programs:
+        print i
+    og.disconnect()
+    del(og)
+
+    Formats:
+    - self.programs = [(1530,30,0xff,1), (1600,45,0x10,2)]
+    - self.sunsite is device phisical installation where:
+        0 is shadowed site.
+        1 half-sun site.
+        2 full sun site.
+
+    Known Bugs:
+    - Serial port must not be hardcoded here.
+    - self.id name is too common, change it to something else.
     """
 
     _s = serial.Serial()
     _s.port = '/tmp/COM1'
     _s.timeout = 10
+
+    id = None
     programs = None
     sunsite = None
 
     def _sendcmd(self, cmd):
         """
         Send the command to the serial port one char at a time.
+
+        Keyword arguments:
+        cmd -- the command string to send.
         """
 
         self._s.flushInput()
@@ -100,15 +140,29 @@ class OpenGarden:
         pass
 
     def connect(self):
+        """
+        Connect to the device and set the device id. 
+        """
+
         self._s.open()
         self.id = self._id()
     
     def disconnect(self):
+        """
+        Close the connection.
+        """
         self._s.close()
 
     def time(self, t=None):
         """
         Get or set the time of the device.
+
+        Keyword arguments:
+            t -- time_t value of the updated timer.
+
+        Example:
+            print og.time()     # print the time (format time_t)
+            og.time(1319724362) # set the time to 2011-10-27 04:06:02 PM
         """
         
         if t is None:
@@ -121,19 +175,30 @@ class OpenGarden:
         return(idt.strip())
 
     def load(self):
-        """ load the programs from the device """
+        """
+        loads programs and sunsite attributes from the device.
+        """
+
         self._send_eepromload_cmd()
         self._load_sunsite()
         self._load_programs()
         
     def save(self):
-        """ save the programs to the device """
+        """
+        save programs and sunsite attributes to the device.
+        """
+
         self._save_programs()
         self._save_sunsite()
         self._send_eepromsave_cmd()
 
     def temperature(self):
-        """ Read the temperature from the device. """
+        """
+        Read the temperature from the device's thermometer.
+
+        Example:
+            print og.temperature()
+        """
 
         self._sendcmd("g\r")
         temp = self._s.readline()
