@@ -51,7 +51,7 @@ class OpenGarden:
     - self.sunsite is device phisical installation where:
         0 is shadowed site.
         1 half-sun site.
-        2 full sun site.
+        2 full-sun site.
 
     Known Bugs:
     - Serial port must not be hardcoded here.
@@ -60,6 +60,10 @@ class OpenGarden:
 
     _s = serial.Serial()
     _s.port = '/tmp/COM1'
+    _s.baudrate = 9600
+    _s.bytesize = 8
+    _s.parity = 'N'
+    _s.stopbits=1
     _s.timeout = 10
 
     id = None
@@ -88,7 +92,7 @@ class OpenGarden:
         Get the id of a device connected.
         """
         
-        self._sendcmd("v\r")
+        self._sendcmd("v\n")
         idt = self._s.readline()
     
         if idt[:10] == 'OpenGarden':
@@ -103,7 +107,7 @@ class OpenGarden:
         just in RAM.
         """
 
-        self._sendcmd("y" + str(self.sunsite) + "\r")
+        self._sendcmd("y" + str(self.sunsite) + "\n")
         ok = self._s.readline()
     
         if ok == 'OK':
@@ -117,9 +121,10 @@ class OpenGarden:
         Note: It takes the value from the RAM not from
         the EEPROM.
         """
-        if self.sunsite is None:
-            self.sunsite = 1
-
+        self._sendcmd("y\n")
+        self.sunsite = self._s.readline()
+        self.sunsite = self.sunsite[0]
+    
     def _send_eepromload_cmd(self):
         """ Restore the EEPROM memory to RAM of the device.
         """
@@ -166,9 +171,9 @@ class OpenGarden:
         """
         
         if t is None:
-            cmd = "d\r"
+            cmd = "d\n"
         else:
-            cmd = "d" + str(t) + "\r"
+            cmd = "d" + str(t) + "\n"
         
         self._sendcmd(cmd)
         idt = self._s.readline()
@@ -200,7 +205,7 @@ class OpenGarden:
             print og.temperature()
         """
 
-        self._sendcmd("g\r")
+        self._sendcmd("g\n")
         temp = self._s.readline()
         return(temp.strip())
 
@@ -213,14 +218,14 @@ if __name__ == "__main__":
     else:
         print "The id is:" + og.id
 
+    print "the temperature is: "
+    print og.temperature()
+
     print "the time is:"
     print og.time()
 
     print "set the time to 123 sec. from the epoch"
     print og.time(123)
-
-    print "the temperature is: "
-    print og.temperature()
 
     print "load programs from the device"
     og.load()
