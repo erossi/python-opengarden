@@ -63,7 +63,7 @@ class OpenGarden:
     _s.baudrate = 9600
     _s.bytesize = 8
     _s.parity = 'N'
-    _s.stopbits=1
+    _s.stopbits = 1
     _s.timeout = 10
 
     id = None
@@ -85,7 +85,13 @@ class OpenGarden:
             j = self._s.read()
 
             if i != j:
-                print "Error RX"
+                raise NameError('ComError')
+
+    def _get_ok(self):
+        ok = self._s.readline()
+
+        if ok.strip() != "OK":
+            raise NameError('NOOK')
 
     def _id(self):
         """
@@ -98,7 +104,7 @@ class OpenGarden:
         if idt[:10] == 'OpenGarden':
             self.id = idt[11:].strip()
         else:
-            raise "Could not connect to the device error"
+            raise NameError('NoConnect')
     
     def _save_sunsite(self):
         """ Send the sunsite value to the device.
@@ -108,12 +114,8 @@ class OpenGarden:
         """
 
         self._sendcmd("y" + str(self.sunsite) + "\n")
-        ok = self._s.readline()
-    
-        if ok == 'OK':
-            return(True)
-        else:
-            return(False)
+        self._get_ok()
+        return(True)
 
     def _load_sunsite(self):
         """ Load the sunsite value from the device.
@@ -126,7 +128,8 @@ class OpenGarden:
         self.sunsite = self.sunsite[0]
     
     def _log_disable(self):
-        """ Disable log event.
+        """
+        Disable log event.
         """
 
         self._sendcmd("L0\n")
@@ -136,23 +139,46 @@ class OpenGarden:
             raise "Wrong answer disabling logs"
 
     def _send_eepromload_cmd(self):
-        """ Restore the EEPROM memory to RAM of the device.
         """
-        pass
+        Restore the EEPROM memory to RAM of the device.
+        """
+
+        self._sendcmd("r\n")
+        self._get_ok()
 
     def _load_programs(self):
         """ Read the programs in RAM from the device. """
 
-        if self.programs is None:
-            self.programs = [(1530,30,0xff,1), (1600,45,0x10,2)]
+        self._sendcmd("l\n")
+        ans = self._s.readline()
+
+        if ans[:10] != "Programs [":
+            raise NameError('ErrProgNo')
+
+        nprog = int(ans[10:12])
+        self.programs = []
+
+        for i in range(nprog):
+            ans = self._s.readline().strip()
+            self.programs.append(ans)
 
     def _save_programs(self):
         """ Store the programs in the device's RAM """
-        pass
+
+        # Clear RAM
+        self._sendcmd('C\n')
+        self._get_ok()
+
+        for i in self.programs:
+            self._sendcmd('p' + i[3:].strip() + '\n')
 
     def _send_eepromsave_cmd(self):
-        """ Write the RAM contents to EEPROM of the device. """
-        pass
+        """
+        Write the RAM contents to EEPROM of the device.
+        """
+
+        self._sendcmd("s\n")
+        self._get_ok()
 
     def connect(self, device):
         """

@@ -9,6 +9,50 @@ To test by hands try:
 socat PTY,link=/tmp/COM1 PTY,link=/tmp/COM2
 python /usr/share/doc/python-serial/examples/miniterm.py --port=/tmp/COM2 --baud=9600 --lf
 
+Example of the CLI usage:
+
+Help usage:
+./ogarden_cli.py --help
+
+Get most of the info:
+./ogarden_cli.py --temperature --get-sunsite --get-time --device /dev/ttyUSB0
+  Open garden device [0.7] found.
+  temperature is: 23.00000
+  media 24h is: 16.46087
+  dfactor is: 1.29217
+  susite setup to: 2
+  OG clock is: 1318623892
+  disconnecting the device
+
+Remember the set-time is performed always before the get-time.
+./ogarden_cli.py --get-time --set-time 1318618000 --device /dev/ttyUSB0
+  Open garden device [0.7] found.
+  set time to: 1318618000
+  OG clock is: 1318618001
+  disconnecting the device
+
+Download the programs to the 'myprograms.csv' file:
+./ogarden_cli.py --get-programs myprograms.csv --device /dev/ttyUSB0
+  Open garden device [0.7] found.
+  disconnecting the device
+  
+  cat myprograms.csv 
+  00,1730,002,ff,0
+  01,1732,002,ff,1
+  02,1733,002,ff,1
+  03,1734,002,ff,2
+
+Upload the programs to the device and sets the sunsite to 2 (Shadow):
+./ogarden_cli.py --send-programs myprograms.csv --set-sunsite 2 --device /dev/ttyUSB0
+  Open garden device [0.7] found.
+  set sunsite to: 2
+  1730,002,ff,0
+  1732,002,ff,1
+  1733,002,ff,1
+  1734,002,ff,2
+  disconnecting the device
+
+
 ToDo:
 - complete this file.
 - add LGPL file.
