@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2011 Enrico Rossi
+# Copyright (C) 2011, 2012 Enrico Rossi
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published
@@ -59,7 +59,7 @@ class OpenGarden:
     """
 
     _s = serial.Serial()
-    _s.port = '/tmp/COM1'
+    _s.port = None
     _s.baudrate = 9600
     _s.bytesize = 8
     _s.parity = 'N'
@@ -96,9 +96,9 @@ class OpenGarden:
         idt = self._s.readline()
     
         if idt[:10] == 'OpenGarden':
-            return(idt[11:])
+            self.id = idt[11:].strip()
         else:
-            return(None)
+            raise "Could not connect to the device error"
     
     def _save_sunsite(self):
         """ Send the sunsite value to the device.
@@ -125,6 +125,16 @@ class OpenGarden:
         self.sunsite = self._s.readline()
         self.sunsite = self.sunsite[0]
     
+    def _log_disable(self):
+        """ Disable log event.
+        """
+
+        self._sendcmd("L0\n")
+        ok = self._s.readline()
+
+        if ok.strip() != "OK":
+            raise "Wrong answer disabling logs"
+
     def _send_eepromload_cmd(self):
         """ Restore the EEPROM memory to RAM of the device.
         """
@@ -144,13 +154,19 @@ class OpenGarden:
         """ Write the RAM contents to EEPROM of the device. """
         pass
 
-    def connect(self):
+    def connect(self, device):
         """
         Connect to the device and set the device id. 
         """
 
+        if device is None:
+            raise "A device MUST be given!"
+
+        self._s.port = device
         self._s.open()
-        self.id = self._id()
+        self._log_disable()
+        self._id()
+        self._load_sunsite()
     
     def disconnect(self):
         """
@@ -201,43 +217,19 @@ class OpenGarden:
         """
         Read the temperature from the device's thermometer.
 
+        Return:
+            a list composed by the temperature [now, media 24h, dfactor]
+
         Example:
             print og.temperature()
         """
 
         self._sendcmd("g\n")
         temp = self._s.readline()
-        return(temp.strip())
+        temp = temp[12:].strip().split(',')
+        return(temp)
 
 if __name__ == "__main__":
-    og = OpenGarden()
-    og.connect()
+    print "This is a module"
 
-    if og.id is None:
-        print "No Open Garden device connected or problems!"
-    else:
-        print "The id is:" + og.id
-
-    print "the temperature is: "
-    print og.temperature()
-
-    print "the time is:"
-    print og.time()
-
-    print "set the time to 123 sec. from the epoch"
-    print og.time(123)
-
-    print "load programs from the device"
-    og.load()
-    print "the sunsite is:"
-    print og.sunsite
-    print "programs loaded:"
-
-    for i in og.programs:
-        print i
-
-    print "disconnecting the device"
-    og.disconnect()
-    del(og)
-    
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
