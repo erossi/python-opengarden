@@ -69,6 +69,7 @@ class OpenGarden:
     id = None
     programs = None
     sunsite = None
+    valve = None
 
     def _sendcmd(self, cmd):
         """
@@ -127,6 +128,31 @@ class OpenGarden:
         self.sunsite = self._s.readline()
         self.sunsite = self.sunsite[0]
     
+    def _save_valve(self):
+        """
+        Set the valve type into the RAM of the device.
+        """
+
+        if self.valve == 'monostable':
+            cmd = "V1\n"
+        else:
+            cmd = "V2\n"
+
+        self._sendcmd(cmd)
+        self._get_ok()
+        return(True)
+
+    def _load_valve(self):
+        """
+        Load the valve type from the device RAM.
+        """
+        self._sendcmd("V\n")
+
+        if (self._s.readline().find("1")) != -1:
+            self.valve = 'monostable'
+        else:
+            self.valve = 'bistable'
+
     def _log_disable(self):
         """
         Disable log event.
@@ -228,6 +254,7 @@ class OpenGarden:
 
         self._send_eepromload_cmd()
         self._load_sunsite()
+        self._load_valve()
         self._load_programs()
         
     def save(self):
@@ -236,6 +263,7 @@ class OpenGarden:
         """
 
         self._save_programs()
+        self._save_valve()
         self._save_sunsite()
         self._send_eepromsave_cmd()
 

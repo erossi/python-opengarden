@@ -34,10 +34,12 @@ parser = argparse.ArgumentParser(description='OpenGarden CLI.')
 parser.add_argument('--get-time', action='store_true', \
         help="Print the abstime from the device connected.")
 parser.add_argument('--set-time', type=long, \
+        metavar="<seconds>", \
         help="Set the abstime to the device connected.")
 parser.add_argument('--get-sunsite', action='store_true', \
         help="Print the sunsite of the device.")
 parser.add_argument('--set-sunsite', type=int, \
+        metavar="SUNSITE", \
         help="Set the sunsite of the device, \
         remeber it will not stored into the device unless \
         an upload of a program is performed.")
@@ -46,8 +48,10 @@ parser.add_argument('--temperature', action='store_true', \
 parser.add_argument('--get-version', action='store_true', \
         help="get the device's firmware version.")
 parser.add_argument('--get-programs', type=argparse.FileType('w'), \
+        metavar="<filename>", \
         help="Download device's programs to file.")
 parser.add_argument('--send-programs', type=argparse.FileType('r'), \
+        metavar="<filename>", \
         help="Use the file to program the device.")
 parser.add_argument('--queue', action='store_true', \
         help="Print the queue list.")
