@@ -19,8 +19,8 @@
 This is the command line interface to the Open Garden device.
 """
 __author__ = "Enrico Rossi <e.rossi@tecnobrain.com>"
-__date__ = "23 December 2011"
-__version__ = "$Revision: 0.1a $"
+__date__ = "23 January 2011"
+__version__ = "$Revision: 0.2a $"
 __credits__ = """Nicola Galliani, the "On the field" beta tester.
 Andrea Marabini, the electronic designer.
 Alessandro Dotti Contra, GUI developer.
@@ -41,6 +41,12 @@ parser.add_argument('--get-sunsite', action='store_true', \
 parser.add_argument('--set-sunsite', type=int, \
         metavar="SUNSITE", \
         help="Set the sunsite of the device, \
+        remeber it will not stored into the device unless \
+        an upload of a program is performed.")
+parser.add_argument('--get-valve', action='store_true', \
+        help="Print the valve type of the device.")
+parser.add_argument('--set-valve', metavar="VALVETYPE", \
+        help="Set the valve type of the device ['monostable or 'bistable'], \
         remeber it will not stored into the device unless \
         an upload of a program is performed.")
 parser.add_argument('--temperature', action='store_true', \
@@ -66,6 +72,7 @@ if og.id is None:
     print "No Open Garden device connected or problems!"
     raise "no device found error"
 else:
+    og.load()
     print "Open garden device [" + og.id + "] found."
 
 if args.temperature:
@@ -81,6 +88,13 @@ if args.set_sunsite:
     og.sunsite = args.set_sunsite
     print "set sunsite to: " + str(og.sunsite)
 
+if args.get_valve:
+    print "valve type is : " + og.valve
+
+if args.set_valve:
+    og.valve = args.set_valve
+    print "set valve type to: " + str(og.valve)
+
 if args.set_time:
     og.time(args.set_time)
     print "set time to: " + str(args.set_time)
@@ -92,8 +106,6 @@ if args.queue:
     print "Queue List: Not Yet Implemented"
 
 if args.get_programs:
-    og.load()
-
     if og.programs:
         # args.get_programs.open()
 

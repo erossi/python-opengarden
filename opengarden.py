@@ -54,7 +54,6 @@ class OpenGarden:
         2 full-sun site.
 
     Known Bugs:
-    - Serial port must not be hardcoded here.
     - self.id name is too common, change it to something else.
     """
 
