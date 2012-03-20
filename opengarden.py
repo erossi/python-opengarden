@@ -49,9 +49,9 @@ class OpenGarden:
     Formats:
     - self.programs = [(1530,30,0xff,1), (1600,45,0x10,2)]
     - self.sunsite is device phisical installation where:
-        0 is shadowed site.
+        2 is shadowed site.
         1 half-sun site.
-        2 full-sun site.
+        0 full-sun site.
 
     Known Bugs:
     - self.id name is too common, change it to something else.
@@ -69,6 +69,7 @@ class OpenGarden:
     programs = None
     sunsite = None
     valve = None
+    allarm = None
 
     def _sendcmd(self, cmd):
         """
@@ -158,10 +159,28 @@ class OpenGarden:
         """
 
         self._sendcmd("L0\n")
-        ok = self._s.readline()
+        self._get_ok()
 
-        if ok.strip() != "OK":
-            raise "Wrong answer disabling logs"
+    def _load_allarm_level(self):
+        """
+        Load from the device the level (high, low) which triggers
+        the allarm.
+        """
+
+        self._sendcmd("a\n")
+        self.allarm = self._s.readline()
+
+    def _save_allarm_level(self):
+        """
+        Store the allarm level to the device.
+        """
+
+        if self.allarm == "HIGH":
+            self._sendcmd("aH\n")
+        else:
+            self._sendcmd("aL\n")
+
+        self._get_ok()
 
     def _send_eepromload_cmd(self):
         """
@@ -255,12 +274,14 @@ class OpenGarden:
         self._load_sunsite()
         self._load_valve()
         self._load_programs()
+        self._load_allarm_level()
         
     def save(self):
         """
         save programs and sunsite attributes to the device.
         """
 
+        self._save_allarm_level()
         self._save_programs()
         self._save_valve()
         self._save_sunsite()
