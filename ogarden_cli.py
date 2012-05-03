@@ -49,10 +49,10 @@ parser.add_argument('--set-valve', metavar="VALVETYPE", \
         help="Set the valve type of the device ['monostable or 'bistable'], \
         remeber it will not stored into the device unless \
         an upload of a program is performed.")
-parser.add_argument('--get-allarm-level', action='store_true', \
-        help="Print the allarm's trigger level.")
-parser.add_argument('--set-allarm-level', metavar="HIGHLOW", \
-        help="Set the allarm's trigger level ['HIGH' or 'LOW'], \
+parser.add_argument('--get-alarm-level', action='store_true', \
+        help="Print the alarm's trigger level.")
+parser.add_argument('--set-alarm-level', metavar="HIGHLOW", \
+        help="Set the alarm's trigger level ['HIGH' or 'LOW'], \
         remeber it will not stored into the device unless \
         an upload of a program is performed.")
 parser.add_argument('--temperature', action='store_true', \
@@ -101,12 +101,12 @@ if args.set_valve:
     og.valve = args.set_valve
     print "set valve type to: " + str(og.valve)
 
-if args.get_allarm_level:
-    print "trigger level is: " + og.allarm
+if args.get_alarm_level:
+    print "trigger level is: " + og.alarm
 
-if args.set_allarm_level:
-    og.allarm = args.set_allarm_level
-    print "set trigger level to : " + str(og.allarm)
+if args.set_alarm_level:
+    og.alarm = args.set_alarm_level
+    print "set trigger level to : " + str(og.alarm)
 
 if args.set_time:
     og.time(args.set_time)
