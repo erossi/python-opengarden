@@ -326,6 +326,18 @@ class OpenGarden:
         temp = temp[12:].strip().split(',')
         return(temp)
 
+    def alarm(self):
+        """
+        Read the alarm's lines status.
+
+        return:
+            ON/OFF
+        """
+
+        self._sendcmd("A\n")
+        alrm = self._s.readline()
+        return(alrm)
+
 if __name__ == "__main__":
     print "This is a module"
 
