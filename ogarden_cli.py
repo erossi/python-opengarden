@@ -31,12 +31,6 @@ import sys
 from opengarden import OpenGarden
 
 parser = argparse.ArgumentParser(description='OpenGarden CLI.')
-parser.add_argument('--get-alarm-level', action='store_true', \
-        help="Print the alarm's trigger level.")
-parser.add_argument('--set-alarm-level', metavar="HIGHLOW", \
-        help="Set the alarm's trigger level ['HIGH' or 'LOW'], \
-        remeber it will not stored into the device unless \
-        an upload of a program is performed.")
 parser.add_argument('--get-programs', type=argparse.FileType('w'), \
         metavar="<filename>", \
         help="Download device's programs to file.")
@@ -50,6 +44,8 @@ parser.add_argument('--set-time', type=long, \
         help="Set the abstime to the device connected.")
 parser.add_argument('--alarm', action='store_true', \
         help="Print the alarm's lines status (ON/OFF).")
+parser.add_argument('--alarm-level', nargs='?', const='get', \
+        metavar="HIGH/LOW", help="get/set alarm trigger level.")
 parser.add_argument('--get-version', action='store_true', \
         help="get the device's firmware version.")
 parser.add_argument('--led', nargs='?', const='get', metavar="ON/OFF", \
@@ -102,12 +98,14 @@ if args.valve:
     else:
         print "Error: Valve type can be only monostable or bistable"
 
-if args.get_alarm_level:
-    print "trigger level is: " + og.alarm
-
-if args.set_alarm_level:
-    og.alarm = args.set_alarm_level
-    print "set trigger level to : " + str(og.alarm)
+if args.alarm_level:
+    if args.alarm_level == 'get':
+        print "trigger level is: " + og.rt_load_alarm_level()
+    elif args.alarm_level in ("HIGH", "LOW"):
+        og.rt_save_alarm_level(args.alarm_level)
+        print "set trigger level to: " + og.rt_load_alarm_level()
+    else:
+        print "Error: Alarm level can be only HIGH or LOW!"
 
 if args.set_time:
     og.time(args.set_time)

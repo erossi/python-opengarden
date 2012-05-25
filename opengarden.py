@@ -165,7 +165,7 @@ class OpenGarden:
         self._sendcmd("L0\n")
         self._get_ok()
 
-    def _load_alarm_level(self):
+    def rt_load_alarm_level(self):
         """
         Load from the device the level (high, low) which triggers
         the alarm.
@@ -173,11 +173,15 @@ class OpenGarden:
 
         self._sendcmd("a\n")
         self.alarm = self._s.readline()
+        return(self.alarm.strip())
 
-    def _save_alarm_level(self):
+    def rt_save_alarm_level(self, alarm=None):
         """
         Store the alarm level to the device.
         """
+
+        if alarm:
+            self.alarm = alarm
 
         if self.alarm == "HIGH":
             self._sendcmd("aH\n")
@@ -307,7 +311,7 @@ class OpenGarden:
         self.rt_load_sunsite()
         self.rt_load_valve()
         self._load_programs()
-        self._load_alarm_level()
+        self.rt_load_alarm_level()
         self.rt_load_led_setup()
         
     def save(self):
@@ -316,7 +320,7 @@ class OpenGarden:
         """
 
         self.rt_save_led_setup()
-        self._save_alarm_level()
+        self.rt_save_alarm_level()
         self._save_programs()
         self.rt_save_valve()
         self.rt_save_sunsite()
@@ -347,7 +351,7 @@ class OpenGarden:
 
         self._sendcmd("A\n")
         alrm = self._s.readline()
-        return(alrm)
+        return(alrm.strip())
 
 if __name__ == "__main__":
     print "This is a module"
