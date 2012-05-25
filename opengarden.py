@@ -183,18 +183,28 @@ class OpenGarden:
 
         self._get_ok()
 
-    def _load_led_setup(self):
+    def rt_load_led_setup(self):
         """
         Load led's enable/disable (ON/OFF).
         """
 
         self._sendcmd("e\n")
         self.led = self._s.readline()
+        return(self.led)
 
-    def _save_led_setup(self):
+    def rt_save_led_setup(self, led=None):
         """
         Send the led setup attribute self.led to the device.
+
+        It can be called in 2 ways, the old one which was save the
+        attribute self.led and then call this function, or the new one
+        which you can call:
+
+        rt_save_led_setup("ON")
         """
+
+        if led:
+            self.led = led
 
         if self.led == "ON":
             self._sendcmd("e1\n")
@@ -296,14 +306,14 @@ class OpenGarden:
         self._load_valve()
         self._load_programs()
         self._load_alarm_level()
-        self._load_led_setup()
+        self.rt_load_led_setup()
         
     def save(self):
         """
         save programs and sunsite attributes to the device.
         """
 
-        self._save_led_setup()
+        self.rt_save_led_setup()
         self._save_alarm_level()
         self._save_programs()
         self._save_valve()
