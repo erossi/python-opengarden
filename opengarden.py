@@ -336,7 +336,7 @@ class OpenGarden:
         temp = temp[12:].strip().split(',')
         return(temp)
 
-    def alarm(self):
+    def get_alarm(self):
         """
         Read the alarm's lines status.
 
