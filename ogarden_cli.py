@@ -55,12 +55,6 @@ parser.add_argument('--get-time', action='store_true', \
 parser.add_argument('--set-time', type=long, \
         metavar="<seconds>", \
         help="Set the abstime to the device connected.")
-parser.add_argument('--get-valve', action='store_true', \
-        help="Print the valve type of the device.")
-parser.add_argument('--set-valve', metavar="VALVETYPE", \
-        help="Set the valve type of the device ['monostable or 'bistable'], \
-        remeber it will not stored into the device unless \
-        an upload of a program is performed.")
 parser.add_argument('--alarm', action='store_true', \
         help="Print the alarm's lines status (ON/OFF).")
 parser.add_argument('--get-version', action='store_true', \
@@ -71,6 +65,8 @@ parser.add_argument('--temperature', action='store_true', \
         help="print the device's temperature.")
 parser.add_argument('--queue', action='store_true', \
         help="Print the queue list.")
+parser.add_argument('--valve', nargs='?', const='get', \
+        metavar="monostable/bistable", help="get/set valve type.")
 parser.add_argument('--device', default='/dev/ttyUSB0', required=True, \
         help="ex. /dev/ttyUSB0 or /dev/ttyS0")
 args = parser.parse_args()
@@ -98,12 +94,14 @@ if args.set_sunsite:
     og.sunsite = args.set_sunsite
     print "set sunsite to: " + str(og.sunsite)
 
-if args.get_valve:
-    print "valve type is : " + og.valve
-
-if args.set_valve:
-    og.valve = args.set_valve
-    print "set valve type to: " + str(og.valve)
+if args.valve:
+    if args.valve == 'get':
+        print "valve type is : " + og.rt_load_valve()
+    elif (args.valve == "monostable") or (args.valve == "bistable"):
+        og.rt_save_valve(args.valve)
+        print "set valve type to: " + og.rt_load_valve()
+    else:
+        print "Error: Valve type can be only monostable or bistable"
 
 if args.get_alarm_level:
     print "trigger level is: " + og.alarm

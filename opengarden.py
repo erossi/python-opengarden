@@ -129,23 +129,9 @@ class OpenGarden:
         self.sunsite = self._s.readline()
         self.sunsite = self.sunsite[0]
     
-    def _save_valve(self):
+    def rt_load_valve(self):
         """
-        Set the valve type into the RAM of the device.
-        """
-
-        if self.valve == 'monostable':
-            cmd = "V1\n"
-        else:
-            cmd = "V2\n"
-
-        self._sendcmd(cmd)
-        self._get_ok()
-        return(True)
-
-    def _load_valve(self):
-        """
-        Load the valve type from the device RAM.
+        Load the valve type from the device.
         """
         self._sendcmd("V\n")
 
@@ -153,6 +139,23 @@ class OpenGarden:
             self.valve = 'monostable'
         else:
             self.valve = 'bistable'
+
+        return(self.valve)
+
+    def rt_save_valve(self, valve=None):
+        """
+        Set the valve type into the RAM of the device.
+        """
+
+        if valve:
+            self.valve = valve
+
+        if self.valve == 'monostable':
+            self._sendcmd("V1\n")
+        else:
+            self._sendcmd("V2\n")
+
+        self._get_ok()
 
     def _log_disable(self):
         """
@@ -301,9 +304,8 @@ class OpenGarden:
         loads programs and sunsite attributes from the device.
         """
 
-        self._send_eepromload_cmd()
         self._load_sunsite()
-        self._load_valve()
+        self.rt_load_valve()
         self._load_programs()
         self._load_alarm_level()
         self.rt_load_led_setup()
@@ -316,9 +318,8 @@ class OpenGarden:
         self.rt_save_led_setup()
         self._save_alarm_level()
         self._save_programs()
-        self._save_valve()
+        self.rt_save_valve()
         self._save_sunsite()
-        self._send_eepromsave_cmd()
 
     def temperature(self):
         """
