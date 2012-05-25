@@ -43,13 +43,6 @@ parser.add_argument('--get-programs', type=argparse.FileType('w'), \
 parser.add_argument('--send-programs', type=argparse.FileType('r'), \
         metavar="<filename>", \
         help="Use the file to program the device.")
-parser.add_argument('--get-sunsite', action='store_true', \
-        help="Print the sunsite of the device.")
-parser.add_argument('--set-sunsite', type=int, \
-        metavar="SUNSITE", \
-        help="Set the sunsite of the device, \
-        remeber it will not stored into the device unless \
-        an upload of a program is performed.")
 parser.add_argument('--get-time', action='store_true', \
         help="Print the abstime from the device connected.")
 parser.add_argument('--set-time', type=long, \
@@ -61,6 +54,10 @@ parser.add_argument('--get-version', action='store_true', \
         help="get the device's firmware version.")
 parser.add_argument('--led', nargs='?', const='get', metavar="ON/OFF", \
         help="get/set led.")
+parser.add_argument('--sunsite', nargs='?', const='get', \
+        metavar="0..2", \
+        help="get/set sunsite value where 0 is Full sun, 1 is Half sun \
+        and 2 is Shadow.")
 parser.add_argument('--temperature', action='store_true', \
         help="print the device's temperature.")
 parser.add_argument('--queue', action='store_true', \
@@ -87,17 +84,19 @@ if args.temperature:
     print "media 24h is: " + temperature[1]
     print "dfactor is: " + temperature[2]
 
-if args.get_sunsite:
-    print "susite setup to: " + og.sunsite
-
-if args.set_sunsite:
-    og.sunsite = args.set_sunsite
-    print "set sunsite to: " + str(og.sunsite)
+if args.sunsite:
+    if args.sunsite == 'get':
+        print "susite setup to: " + og.rt_load_sunsite()
+    elif args.sunsite in ('0', '1', '2'):
+        og.rt_save_sunsite(args.sunsite)
+        print "set sunsite to: " + og.rt_load_sunsite()
+    else:
+        print "Error: Sunsite value can be only 0, 1, 2!"
 
 if args.valve:
     if args.valve == 'get':
         print "valve type is : " + og.rt_load_valve()
-    elif (args.valve == "monostable") or (args.valve == "bistable"):
+    elif args.valve in ("monostable", "bistable"):
         og.rt_save_valve(args.valve)
         print "set valve type to: " + og.rt_load_valve()
     else:
@@ -147,7 +146,7 @@ if args.alarm:
 if args.led:
     if args.led == 'get':
         print "Led setup is: " + og.rt_load_led_setup()
-    elif (args.led == "ON") or (args.led == "OFF"):
+    elif args.led in ("ON", "OFF"):
         og.rt_save_led_setup(args.led)
         print "Led setup to: " + og.rt_load_led_setup()
     else:

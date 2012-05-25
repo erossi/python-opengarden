@@ -108,27 +108,27 @@ class OpenGarden:
         else:
             raise NameError('NoConnect')
     
-    def _save_sunsite(self):
-        """ Send the sunsite value to the device.
-
-        Note: It does not save the value in the EEPROM,
-        just in RAM.
+    def rt_load_sunsite(self):
+        """
+        Load the sunsite value from the device.
         """
 
-        self._sendcmd("y" + str(self.sunsite) + "\n")
-        self._get_ok()
-        return(True)
-
-    def _load_sunsite(self):
-        """ Load the sunsite value from the device.
-
-        Note: It takes the value from the RAM not from
-        the EEPROM.
-        """
         self._sendcmd("y\n")
         self.sunsite = self._s.readline()
         self.sunsite = self.sunsite[0]
-    
+        return(self.sunsite)
+
+    def rt_save_sunsite(self, sunsite=None):
+        """
+        Send the sunsite value to the device.
+        """
+
+        if sunsite:
+            self.sunsite=sunsite
+
+        self._sendcmd("y" + str(self.sunsite) + "\n")
+        self._get_ok()
+
     def rt_load_valve(self):
         """
         Load the valve type from the device.
@@ -270,7 +270,7 @@ class OpenGarden:
         self._s.open()
         self._log_disable()
         self._id()
-        self._load_sunsite()
+        self.rt_load_sunsite()
     
     def disconnect(self):
         """
@@ -304,7 +304,7 @@ class OpenGarden:
         loads programs and sunsite attributes from the device.
         """
 
-        self._load_sunsite()
+        self.rt_load_sunsite()
         self.rt_load_valve()
         self._load_programs()
         self._load_alarm_level()
@@ -319,7 +319,7 @@ class OpenGarden:
         self._save_alarm_level()
         self._save_programs()
         self.rt_save_valve()
-        self._save_sunsite()
+        self.rt_save_sunsite()
 
     def temperature(self):
         """
