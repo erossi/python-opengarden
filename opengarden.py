@@ -70,6 +70,7 @@ class OpenGarden:
     sunsite = None
     valve = None
     alarm = None
+    led = None
 
     def _sendcmd(self, cmd):
         """
@@ -182,6 +183,26 @@ class OpenGarden:
 
         self._get_ok()
 
+    def _load_led_setup(self):
+        """
+        Load led's enable/disable (ON/OFF).
+        """
+
+        self._sendcmd("e\n")
+        self.led = self._s.readline()
+
+    def _save_led_setup(self):
+        """
+        Send the led setup attribute self.led to the device.
+        """
+
+        if self.led == "ON":
+            self._sendcmd("e1\n")
+        else:
+            self._sendcmd("e0\n")
+
+        self._get_ok()
+
     def _send_eepromload_cmd(self):
         """
         Restore the EEPROM memory to RAM of the device.
@@ -275,12 +296,14 @@ class OpenGarden:
         self._load_valve()
         self._load_programs()
         self._load_alarm_level()
+        self._load_led_setup()
         
     def save(self):
         """
         save programs and sunsite attributes to the device.
         """
 
+        self._save_led_setup()
         self._save_alarm_level()
         self._save_programs()
         self._save_valve()
