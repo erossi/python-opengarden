@@ -31,11 +31,18 @@ import sys
 from opengarden import OpenGarden
 
 parser = argparse.ArgumentParser(description='OpenGarden CLI.')
-parser.add_argument('--get-time', action='store_true', \
-        help="Print the abstime from the device connected.")
-parser.add_argument('--set-time', type=long, \
-        metavar="<seconds>", \
-        help="Set the abstime to the device connected.")
+parser.add_argument('--get-alarm-level', action='store_true', \
+        help="Print the alarm's trigger level.")
+parser.add_argument('--set-alarm-level', metavar="HIGHLOW", \
+        help="Set the alarm's trigger level ['HIGH' or 'LOW'], \
+        remeber it will not stored into the device unless \
+        an upload of a program is performed.")
+parser.add_argument('--get-programs', type=argparse.FileType('w'), \
+        metavar="<filename>", \
+        help="Download device's programs to file.")
+parser.add_argument('--send-programs', type=argparse.FileType('r'), \
+        metavar="<filename>", \
+        help="Use the file to program the device.")
 parser.add_argument('--get-sunsite', action='store_true', \
         help="Print the sunsite of the device.")
 parser.add_argument('--set-sunsite', type=int, \
@@ -43,28 +50,25 @@ parser.add_argument('--set-sunsite', type=int, \
         help="Set the sunsite of the device, \
         remeber it will not stored into the device unless \
         an upload of a program is performed.")
+parser.add_argument('--get-time', action='store_true', \
+        help="Print the abstime from the device connected.")
+parser.add_argument('--set-time', type=long, \
+        metavar="<seconds>", \
+        help="Set the abstime to the device connected.")
 parser.add_argument('--get-valve', action='store_true', \
         help="Print the valve type of the device.")
 parser.add_argument('--set-valve', metavar="VALVETYPE", \
         help="Set the valve type of the device ['monostable or 'bistable'], \
         remeber it will not stored into the device unless \
         an upload of a program is performed.")
-parser.add_argument('--get-alarm-level', action='store_true', \
-        help="Print the alarm's trigger level.")
-parser.add_argument('--set-alarm-level', metavar="HIGHLOW", \
-        help="Set the alarm's trigger level ['HIGH' or 'LOW'], \
-        remeber it will not stored into the device unless \
-        an upload of a program is performed.")
-parser.add_argument('--temperature', action='store_true', \
-        help="get the device's temperature.")
+parser.add_argument('--alarm', action='store_true', \
+        help="Print the alarm's lines status (ON/OFF).")
 parser.add_argument('--get-version', action='store_true', \
         help="get the device's firmware version.")
-parser.add_argument('--get-programs', type=argparse.FileType('w'), \
-        metavar="<filename>", \
-        help="Download device's programs to file.")
-parser.add_argument('--send-programs', type=argparse.FileType('r'), \
-        metavar="<filename>", \
-        help="Use the file to program the device.")
+parser.add_argument('--led', nargs='?', const='get', metavar="ON/OFF", \
+        help="get/set led.")
+parser.add_argument('--temperature', action='store_true', \
+        help="print the device's temperature.")
 parser.add_argument('--queue', action='store_true', \
         help="Print the queue list.")
 parser.add_argument('--device', default='/dev/ttyUSB0', required=True, \
@@ -138,7 +142,19 @@ if args.send_programs:
 
     og.save()
     args.send_programs.close()
-    
+
+if args.alarm:
+    print "Alarm's lines: " + og.get_alarm()
+
+if args.led:
+    if args.led == 'get':
+        print "Led setup is: " + og.rt_load_led_setup()
+    elif (args.led == "ON") or (args.led == "OFF"):
+        og.rt_save_led_setup(args.led)
+        print "Led setup to: " + og.rt_load_led_setup()
+    else:
+        print "Led can be only ON or OFF"
+
 print "disconnecting the device"
 og.disconnect()
 del(og)
