@@ -190,7 +190,7 @@ class OpenGarden:
 
         self._sendcmd("e\n")
         self.led = self._s.readline()
-        return(self.led)
+        return(self.led.strip())
 
     def rt_save_led_setup(self, led=None):
         """
