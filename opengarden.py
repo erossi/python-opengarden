@@ -172,8 +172,8 @@ class OpenGarden:
         """
 
         self._sendcmd("a\n")
-        self.alarm = self._s.readline()
-        return(self.alarm.strip())
+        self.alarm = self._s.readline().strip()
+        return(self.alarm)
 
     def rt_save_alarm_level(self, alarm=None):
         """
@@ -196,8 +196,8 @@ class OpenGarden:
         """
 
         self._sendcmd("e\n")
-        self.led = self._s.readline()
-        return(self.led.strip())
+        self.led = self._s.readline().strip()
+        return(self.led)
 
     def rt_save_led_setup(self, led=None):
         """
