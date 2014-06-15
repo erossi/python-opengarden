@@ -112,7 +112,7 @@ class program:
 		Examples:
 			program.asString()
 		"""
-		string = "%s (%3s) - settore %s " % (self._start, self._length, self._line)
+		string = _("%s (%3s) - line %s ") % (self._start, self._length, self._line)
 		string += "[ "
 		for day in self._days:
 			string += "%s " % (day)
