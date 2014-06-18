@@ -38,8 +38,8 @@ def init_localization():
 	'''
 	locale.setlocale(locale.LC_ALL, '') # Use user's preferred locale
 	# Take first two characters of country code and load messages
-	loc = locale.getlocale()[0][0:2]
-	t = gettext.translation(loc, 'locale', fallback=True)
+	loc = locale.getlocale()
+	t = gettext.translation('opengarden', 'locale', loc, fallback=True)
 	t.install()
 
 init_localization()
