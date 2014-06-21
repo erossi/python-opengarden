@@ -36,9 +36,8 @@ def init_localization():
 	'''
 	Set the correct language for the application
 	'''
-	locale.setlocale(locale.LC_ALL, '') # Use user's preferred locale
-	# Take first two characters of country code and load messages
-	loc = locale.getlocale()
+	locale.setlocale(locale.LC_ALL, '')	# Use user's preferred locale
+	loc = locale.getdefaultlocale()		# Locale in use
 	t = gettext.translation('opengarden', 'locale', loc, fallback=True)
 	t.install()
 
