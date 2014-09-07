@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2011, 2012 Enrico Rossi
+# Copyright (C) 2011-2014 Enrico Rossi
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published
@@ -29,8 +29,7 @@ Alessandro Dotti Contra, GUI developer.
 import serial
 
 class OpenGarden:
-    """
-    The basic class definition
+    """ The basic class definition
 
     Some usefull docs.
 
@@ -65,7 +64,8 @@ class OpenGarden:
     _s.stopbits = 1
     _s.timeout = 10
 
-    id = None
+    version = None
+    serial = None
     programs = None
     sunsite = None
     valve = None
@@ -73,8 +73,7 @@ class OpenGarden:
     led = None
 
     def _sendcmd(self, cmd):
-        """
-        Send the command to the serial port one char at a time.
+        """ Send the command to the serial port one char at a time.
 
         Keyword arguments:
         cmd -- the command string to send.
@@ -89,51 +88,65 @@ class OpenGarden:
             if i != j:
                 raise NameError('ComError')
 
+        self._s.write('\r')
+        self._s.read() # Read the \n
+        self._s.read() # Read the \r
+
     def _get_ok(self):
         ok = self._s.readline()
 
         if ok.strip() != "OK":
             raise NameError('NOOK')
 
-    def _id(self):
-        """
-        Get the id of a device connected.
-        """
-        
-        self._sendcmd("v\n")
-        idt = self._s.readline()
-    
-        if idt[:10] == 'OpenGarden':
-            self.id = idt[11:].strip()
-        else:
-            raise NameError('NoConnect')
-    
-    def rt_load_sunsite(self):
-        """
-        Load the sunsite value from the device.
+    def _version(self):
+        """ Get the version (git) of a device connected.
         """
 
-        self._sendcmd("y\n")
+        self._sendcmd("v")
+        self.version = self._s.readline()
+
+        if self.version[:10] == 'OpenGarden':
+            self.version = self.version[11:].strip()
+        else:
+            raise NameError('NoConnect')
+
+    def _serial(self):
+        """ Read the serial number.
+
+        Return:
+            The serial number as a string like 01011409061234
+
+        Example:
+            print OpenGarden.serial()
+        """
+
+        self._sendcmd("S")
+        self.serial = self._s.readline()
+        self.serial = self.serial[8:].strip()
+
+    def rt_load_sunsite(self):
+        """ Load the sunsite value from the device.
+        """
+
+        self._sendcmd("y")
         self.sunsite = self._s.readline()
         self.sunsite = self.sunsite[0]
         return(self.sunsite)
 
     def rt_save_sunsite(self, sunsite=None):
-        """
-        Send the sunsite value to the device.
+        """ Send the sunsite value to the device.
         """
 
         if sunsite:
             self.sunsite=sunsite
 
-        self._sendcmd("y" + str(self.sunsite) + "\n")
+        self._sendcmd("y" + str(self.sunsite))
         self._get_ok()
 
     def rt_load_valve(self):
+        """ Load the valve type from the device.
         """
-        Load the valve type from the device.
-        """
-        self._sendcmd("V\n")
+        self._sendcmd("V")
 
         if (self._s.readline().find("1")) != -1:
             self.valve = 'monostable'
@@ -143,65 +156,61 @@ class OpenGarden:
         return(self.valve)
 
     def rt_save_valve(self, valve=None):
-        """
-        Set the valve type into the RAM of the device.
+        """ Set the valve type into the RAM of the device.
         """
 
         if valve:
             self.valve = valve
 
         if self.valve == 'monostable':
-            self._sendcmd("V1\n")
+            self._sendcmd("V1")
         else:
-            self._sendcmd("V2\n")
+            self._sendcmd("V2")
 
         self._get_ok()
 
     def _log_disable(self):
-        """
-        Disable log event.
+        """ Disable log event.
+
+        This is necessary to avoid conflict when sending commands.
         """
 
-        self._sendcmd("L0\n")
+        self._sendcmd("L0")
         self._get_ok()
 
     def rt_load_alarm_level(self):
-        """
-        Load from the device the level (high, low) which triggers
+        """ Load from the device the level (high, low) which triggers
         the alarm.
         """
 
-        self._sendcmd("a\n")
+        self._sendcmd("a")
         self.alarm = self._s.readline().strip()
         return(self.alarm)
 
     def rt_save_alarm_level(self, alarm=None):
-        """
-        Store the alarm level to the device.
+        """ Store the alarm level to the device.
         """
 
         if alarm:
             self.alarm = alarm
 
         if self.alarm == "HIGH":
-            self._sendcmd("aH\n")
+            self._sendcmd("aH")
         else:
-            self._sendcmd("aL\n")
+            self._sendcmd("aL")
 
         self._get_ok()
 
     def rt_load_led_setup(self):
-        """
-        Load led's enable/disable (ON/OFF).
+        """ Load led's enable/disable (ON/OFF).
         """
 
-        self._sendcmd("e\n")
+        self._sendcmd("e")
         self.led = self._s.readline().strip()
         return(self.led)
 
     def rt_save_led_setup(self, led=None):
-        """
-        Send the led setup attribute self.led to the device.
+        """ Send the led setup attribute self.led to the device.
 
         It can be called in 2 ways, the old one which was save the
         attribute self.led and then call this function, or the new one
@@ -214,24 +223,23 @@ class OpenGarden:
             self.led = led
 
         if self.led == "ON":
-            self._sendcmd("e1\n")
+            self._sendcmd("e1")
         else:
-            self._sendcmd("e0\n")
+            self._sendcmd("e0")
 
         self._get_ok()
 
     def _send_eepromload_cmd(self):
-        """
-        Restore the EEPROM memory to RAM of the device.
+        """ Restore the EEPROM memory to RAM of the device.
         """
 
-        self._sendcmd("r\n")
+        self._sendcmd("r")
         self._get_ok()
 
     def _load_programs(self):
         """ Read the programs in RAM from the device. """
 
-        self._sendcmd("l\n")
+        self._sendcmd("l")
         ans = self._s.readline()
 
         if ans[:10] != "Programs [":
@@ -248,23 +256,21 @@ class OpenGarden:
         """ Store the programs in the device's RAM """
 
         # Clear RAM
-        self._sendcmd('C\n')
+        self._sendcmd('C')
         self._get_ok()
 
         for i in self.programs:
-            self._sendcmd('p' + i[3:].strip() + '\n')
+            self._sendcmd('p' + i[3:].strip())
 
     def _send_eepromsave_cmd(self):
-        """
-        Write the RAM contents to EEPROM of the device.
+        """ Write the RAM contents to EEPROM of the device.
         """
 
-        self._sendcmd("s\n")
+        self._sendcmd("s")
         self._get_ok()
 
     def connect(self, device):
-        """
-        Connect to the device and set the device id. 
+        """ Connect to the device and set the device version and serial.
         """
 
         if device is None:
@@ -273,18 +279,17 @@ class OpenGarden:
         self._s.port = device
         self._s.open()
         self._log_disable()
-        self._id()
+        self._version()
+        self._serial()
         self.rt_load_sunsite()
-    
+
     def disconnect(self):
-        """
-        Close the connection.
+        """ Close the connection.
         """
         self._s.close()
 
     def time(self, t=None):
-        """
-        Get or set the time of the device.
+        """ Get or set the time of the device.
 
         Keyword arguments:
             t -- time_t value of the updated timer.
@@ -293,19 +298,18 @@ class OpenGarden:
             print og.time()     # print the time (format time_t)
             og.time(1319724362) # set the time to 2011-10-27 04:06:02 PM
         """
-        
+
         if t is None:
-            cmd = "d\n"
+            cmd = "d"
         else:
-            cmd = "d" + str(t) + "\n"
-        
+            cmd = "d" + str(t)
+
         self._sendcmd(cmd)
         idt = self._s.readline()
         return(idt.strip())
 
     def load(self):
-        """
-        loads programs and sunsite attributes from the device.
+        """ loads programs and sunsite attributes from the device.
         """
 
         self.rt_load_sunsite()
@@ -313,10 +317,9 @@ class OpenGarden:
         self._load_programs()
         self.rt_load_alarm_level()
         self.rt_load_led_setup()
-        
+
     def save(self):
-        """
-        save programs and sunsite attributes to the device.
+        """ save programs and sunsite attributes to the device.
         """
 
         self.rt_save_led_setup()
@@ -326,8 +329,7 @@ class OpenGarden:
         self.rt_save_sunsite()
 
     def temperature(self):
-        """
-        Read the temperature from the device's thermometer.
+        """ Read the temperature from the device's thermometer.
 
         Return:
             a list composed by the temperature [now, media 24h, dfactor]
@@ -336,20 +338,19 @@ class OpenGarden:
             print og.temperature()
         """
 
-        self._sendcmd("g\n")
+        self._sendcmd("g")
         temp = self._s.readline()
         temp = temp[12:].strip().split(',')
         return(temp)
 
     def get_alarm(self):
-        """
-        Read the alarm's lines status.
+        """ Read the alarm's lines status.
 
         return:
             ON/OFF
         """
 
-        self._sendcmd("A\n")
+        self._sendcmd("A")
         alrm = self._s.readline()
         return(alrm.strip())
 

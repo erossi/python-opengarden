@@ -111,7 +111,7 @@ def connect():
 		showError(_("Unable to connect to the appliance"))
 		isConnected = False
 	else:
-		if not appliance.id:
+		if not appliance.version:
 			showError(_("Unknown appliance"))
 		else:
 			isConnected = True
@@ -561,75 +561,94 @@ def displayConfigForm():
 	config = Toplevel(mainWindow)
 	config.title(_("Configure appliance"))
 
-	#Appliance's id
+        row = 0
+
+	#Appliance's version
 	idLabel = Label(config, text=_("Appliance version"))
-	idLabel.grid(row=0, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-	idValueLabel = Label(config, text=appliance.id)
-	idValueLabel.grid(row=0, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+	idLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+	idValueLabel = Label(config, text=appliance.version)
+	idValueLabel.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+        row+=1
+
+	# Appliance's serial number
+        idLabel = Label(config, text=_("Serial number"))
+	idLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+	idValueLabel = Label(config, text=appliance.serial)
+	idValueLabel.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+        row+=1
 
 	#Temperature
 	temperature = appliance.temperature()
 
 	tempLabel = Label(config, text=_("Temperature"))
-	tempLabel.grid(row=1, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+	tempLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
 	tempValueLabel = Label(config, text=temperature[0])
-	tempValueLabel.grid(row=1, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+	tempValueLabel.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+        row+=1
+
 	avgTempLabel = Label(config, text=_("24h avg. temperature"))
-	avgTempLabel.grid(row=2, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+	avgTempLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
 	avgTempValueLabel = Label(config, text=temperature[1])
-	avgTempValueLabel.grid(row=2, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+	avgTempValueLabel.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+        row*=1
+
 	dfactorLabel = Label(config, text="D Factor")
-	dfactorLabel.grid(row=3, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+	dfactorLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
 	dfactorValueLabel = Label(config, text=temperature[2])
-	dfactorValueLabel.grid(row=3, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+	dfactorValueLabel.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+        row+=1
 
 	#Site
 	siteLabel = Label(config, text=_("Average external temperature"))
-	siteLabel.grid(row=4, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+	siteLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
 
 	siteOptions =(_("24 to 34 degrees"), _("20 to 32 degrees"), _("15 to 25 degrees"))
 	siteVar = StringVar()
 	siteVar.set(siteOptions[int(appliance.sunsite)])
 	siteMenu = OptionMenu(config, siteVar, *siteOptions)
-	siteMenu.grid(row=4, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+	siteMenu.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+        row+=1
 
 	#Valve
 	valveLabel = Label(config, text=_("Valve type"))
-	valveLabel.grid(row=5, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+	valveLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
 
 	valveOptions = valveSettings.values()
 	valveVar = StringVar()
 	valveVar.set(valveSettings[appliance.valve])
 	valveMenu = OptionMenu(config, valveVar, *valveOptions)
-	valveMenu.grid(row=5, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+	valveMenu.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+        row+=1
 
 	#Led
 	ledLabel = Label(config, text=_("Leds configuration"))
-	ledLabel.grid(row=6, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+	ledLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
 
 	ledOptions =("ON", "OFF")
 	ledVar = StringVar()
 	ledVar.set(appliance.led)
 	ledMenu = OptionMenu(config, ledVar, *ledOptions)
-	ledMenu.grid(row=6, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+	ledMenu.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+        row+=1
 
 	#Alarms
 	alarmLabel = Label(config, text=_("Alarm level"))
-	alarmLabel.grid(row=7, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+	alarmLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
 
 	alarmOptions = alarmSettings.values()
 	alarmVar = StringVar()
 	alarmVar.set(alarmSettings[appliance.alarm])
 	alarmMenu = OptionMenu(config, alarmVar, *alarmOptions)
-	alarmMenu.grid(row=7, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+	alarmMenu.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+        row+=1
 
 	#Apply button
 	applyButton = Button(config, width=fmtButtonWidth, text=_("Apply"), command=(lambda: configAppliance(siteVar,siteOptions,valveVar,ledVar,alarmVar)))
-	applyButton.grid(row=8, column=0, padx=fmtPadding, pady=fmtPadding)
+	applyButton.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding)
 
 	#Cancel button
 	cancelButton = Button(config, width=fmtButtonWidth, text=_("Cancel"), command=closeConfigForm)
-	cancelButton.grid(row=8, column=1, padx=fmtPadding, pady=fmtPadding)
+	cancelButton.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding)
 
 	makeModal(config,mainWindow)
 

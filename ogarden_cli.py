@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2011, 2012 Enrico Rossi
+# Copyright (C) 2011-2014 Enrico Rossi
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published
@@ -67,12 +67,14 @@ args = parser.parse_args()
 og = OpenGarden()
 og.connect(args.device)
 
-if og.id is None:
+if og.version is None:
     print "No Open Garden device connected or problems!"
     raise "no device found error"
 else:
     og.load()
-    print "Open garden device [" + og.id + "] found."
+    print "Open garden device found."
+    print "Serial number:", og.serial
+    print "Software version:", og.version
 
 if args.temperature:
     temperature = og.temperature()

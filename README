@@ -7,20 +7,23 @@ This is an incomplete README file.
 
 To view the API doc try:
 
-pydoc ./ogarden.py
+pydoc ./opengarden.py
 
-To test by hands try:
+To test by hands, without the device, first create a virtual serial port,
+the connect a terminal to one port and the ogrden_cli to the other.
+You then can manually enter the result code as you are the device.
 
+# Create the vitual port with
 socat PTY,link=/tmp/COM1 PTY,link=/tmp/COM2
 python /usr/share/doc/python-serial/examples/miniterm.py --port=/tmp/COM2 --baud=9600 --lf
 
-Example of the CLI usage:
+# Normal usage:
 
 Help usage:
 ./ogarden_cli.py --help
 
 Get most of the info:
-./ogarden_cli.py --temperature --get-sunsite --get-time --device /dev/ttyUSB0
+./ogarden_cli.py --temperature --sunsite --get-time --device /dev/ttyUSB0
   Open garden device [0.7] found.
   temperature is: 23.00000
   media 24h is: 16.46087
@@ -48,7 +51,7 @@ Download the programs to the 'myprograms.csv' file:
   03,1734,002,ff,2
 
 Upload the programs to the device and sets the sunsite to 2 (Shadow):
-./ogarden_cli.py --send-programs myprograms.csv --set-sunsite 2 --device /dev/ttyUSB0
+./ogarden_cli.py --send-programs myprograms.csv --sunsite 2 --device /dev/ttyUSB0
   Open garden device [0.7] found.
   set sunsite to: 2
   1730,002,ff,0
