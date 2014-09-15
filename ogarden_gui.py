@@ -577,6 +577,16 @@ def displayConfigForm():
 	idValueLabel.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
         row+=1
 
+	# Appliance's time
+        idLabel = Label(config, text=_("Date"))
+	idLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+	idValueLabel = Label(config, \
+                text=time.strftime("%d %b %Y %H:%M:%S", \
+                time.gmtime(int(appliance.time()))))
+	idValueLabel.grid(row=row, column=1, padx=fmtPadding, \
+                pady=fmtPadding, sticky=N+W)
+        row+=1
+
 	#Temperature
 	temperature = appliance.temperature()
 
