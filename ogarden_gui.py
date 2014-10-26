@@ -1013,3 +1013,5 @@ device = probeDevice(platform.system())
 # Start GUI
 
 mainWindow.mainloop()
+
+# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
