@@ -6,141 +6,142 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 0.1.0\n"
+"Project-Id-Version: 0.1.1\n"
 "Report-Msgid-Bugs-To: alessandro@hyboria.org\n"
-"POT-Creation-Date: 2014-06-16 21:51+0200\n"
-"PO-Revision-Date: 2014-06-16\n"
+"POT-Creation-Date: 2014-12-31 00:15+0200\n"
+"PO-Revision-Date: 2014-12-31\n"
 "Last-Translator: Alessandro Dotti Contra <alessandro@hyboria.org>\n"
 "Language: Italian\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ogarden_gui.py:70
+#: ogarden_gui.py:70 ogarden_gui.py:68
 msgid "mon"
 msgstr "lun"
 
-#: ogarden_gui.py:70
+#: ogarden_gui.py:70 ogarden_gui.py:68
 msgid "tue"
 msgstr "mar"
 
-#: ogarden_gui.py:70
+#: ogarden_gui.py:70 ogarden_gui.py:68
 msgid "wed"
 msgstr "mer"
 
-#: ogarden_gui.py:70
+#: ogarden_gui.py:70 ogarden_gui.py:68
 msgid "thu"
 msgstr "gio"
 
-#: ogarden_gui.py:70
+#: ogarden_gui.py:70 ogarden_gui.py:68
 msgid "fri"
 msgstr "ven"
 
-#: ogarden_gui.py:70
+#: ogarden_gui.py:70 ogarden_gui.py:68
 msgid "sat"
 msgstr "sab"
 
-#: ogarden_gui.py:70
+#: ogarden_gui.py:70 ogarden_gui.py:68
 msgid "sun"
 msgstr "dom"
 
-#: ogarden_gui.py:71
+#: ogarden_gui.py:71 ogarden_gui.py:69
 msgid "Bistable BATT"
 msgstr "Bistabile BATT"
 
-#: ogarden_gui.py:112
+#: ogarden_gui.py:112 ogarden_gui.py:109
 msgid "Unable to connect to the appliance"
 msgstr "Impossibile collegarsi alla centralina"
 
-#: ogarden_gui.py:116
+#: ogarden_gui.py:116 ogarden_gui.py:113
 msgid "Unknown appliance"
 msgstr "Centralina sconosciuta"
 
-#: ogarden_gui.py:277
+#: ogarden_gui.py:277 ogarden_gui.py:263
 msgid "Save programs"
 msgstr "Salva programmi"
 
-#: ogarden_gui.py:277 ogarden_gui.py:308
+#: ogarden_gui.py:277 ogarden_gui.py:308 ogarden_gui.py:263 ogarden_gui.py:293
 msgid "Data"
 msgstr "Dati"
 
-#: ogarden_gui.py:282
+#: ogarden_gui.py:282 ogarden_gui.py:268
 msgid "Can't save data file"
 msgstr "Impossibile salvare il file"
 
-#: ogarden_gui.py:308
+#: ogarden_gui.py:308 ogarden_gui.py:293
 msgid "Load programs"
 msgstr "Carica programmi"
 
-#: ogarden_gui.py:313
+#: ogarden_gui.py:313 ogarden_gui.py:298
 msgid "Can't read data file"
 msgstr "Impossibile leggere il file dati"
 
-#: ogarden_gui.py:377 ogarden_gui.py:948
+#: ogarden_gui.py:377 ogarden_gui.py:948 ogarden_gui.py:358 ogarden_gui.py:958
 msgid "Notes"
 msgstr "Note"
 
-#: ogarden_gui.py:426
+#: ogarden_gui.py:426 ogarden_gui.py:404
 msgid "Error"
 msgstr "Errore"
 
-#: ogarden_gui.py:434
+#: ogarden_gui.py:434 ogarden_gui.py:411
 msgid "Disconnect"
 msgstr "Disconnetti"
 
-#: ogarden_gui.py:435
+#: ogarden_gui.py:435 ogarden_gui.py:412
 msgid "Connected"
 msgstr "Connesso"
 
-#: ogarden_gui.py:437
+#: ogarden_gui.py:437 ogarden_gui.py:414
 msgid "Connect"
 msgstr "Connetti"
 
-#: ogarden_gui.py:438
+#: ogarden_gui.py:438 ogarden_gui.py:415
 msgid "Not connected"
 msgstr "Non connesso"
 
-#: ogarden_gui.py:448
+#: ogarden_gui.py:448 ogarden_gui.py:424
 msgid "Warning! Alarms reported"
 msgstr "Attenzione! Rilevati allarmi"
 
-#: ogarden_gui.py:450
+#: ogarden_gui.py:450 ogarden_gui.py:426
 msgid "No alarm reported"
 msgstr "Nessun allarme rilavato"
 
-#: ogarden_gui.py:479 ogarden_gui.py:934
+#: ogarden_gui.py:479 ogarden_gui.py:934 ogarden_gui.py:451 ogarden_gui.py:944
 msgid "New program"
 msgstr "Nuovo programma"
 
-#: ogarden_gui.py:479 ogarden_gui.py:936
+#: ogarden_gui.py:479 ogarden_gui.py:936 ogarden_gui.py:451 ogarden_gui.py:946
 msgid "Modify program"
 msgstr "Modifica programma"
 
-#: ogarden_gui.py:485
+#: ogarden_gui.py:485 ogarden_gui.py:457
 msgid "Line"
 msgstr "Settore"
 
-#: ogarden_gui.py:491
+#: ogarden_gui.py:491 ogarden_gui.py:463
 msgid "Start (HH:MM)"
 msgstr "Inizio (HH:MM)"
 
-#: ogarden_gui.py:499
+#: ogarden_gui.py:499 ogarden_gui.py:471
 msgid "Duration (HH:MM)"
 msgstr "Durata (HH:MM)"
 
-#: ogarden_gui.py:528 ogarden_gui.py:632 ogarden_gui.py:669
+#: ogarden_gui.py:528 ogarden_gui.py:632 ogarden_gui.py:669 ogarden_gui.py:500
+#: ogarden_gui.py:651 ogarden_gui.py:687
 msgid "Cancel"
 msgstr "Annulla"
 
-#: ogarden_gui.py:563 ogarden_gui.py:924
+#: ogarden_gui.py:563 ogarden_gui.py:924 ogarden_gui.py:535 ogarden_gui.py:934
 msgid "Configure appliance"
 msgstr "Configura centralina"
 
-#: ogarden_gui.py:566
+#: ogarden_gui.py:566 ogarden_gui.py:540
 msgid "Appliance version"
 msgstr "Versione centralina"
 
-#: ogarden_gui.py:574
+#: ogarden_gui.py:574 ogarden_gui.py:566
 msgid "Temperature"
 msgstr "Temperatura"
 
@@ -148,107 +149,107 @@ msgstr "Temperatura"
 msgid "24h avg. temperature"
 msgstr "Temperatura media 24h"
 
-#: ogarden_gui.py:588
+#: ogarden_gui.py:588 ogarden_gui.py:597
 msgid "Average external temperature"
 msgstr "Temperatura esterna media"
 
-#: ogarden_gui.py:591
+#: ogarden_gui.py:591 ogarden_gui.py:604
 msgid "24 to 34 degrees"
 msgstr "Da 24 a 34 gradi"
 
-#: ogarden_gui.py:591
+#: ogarden_gui.py:591 ogarden_gui.py:604
 msgid "20 to 32 degrees"
 msgstr "Da 20 a 32 gradi"
 
-#: ogarden_gui.py:591
+#: ogarden_gui.py:591 ogarden_gui.py:605
 msgid "15 to 25 degrees"
 msgstr "Da 15 a 25 gradi"
 
-#: ogarden_gui.py:598
+#: ogarden_gui.py:598 ogarden_gui.py:614
 msgid "Valve type"
 msgstr "Tipo di valvola"
 
-#: ogarden_gui.py:608
+#: ogarden_gui.py:608 ogarden_gui.py:625
 msgid "Leds configuration"
 msgstr "Configurazione led"
 
-#: ogarden_gui.py:618
+#: ogarden_gui.py:618 ogarden_gui.py:636
 msgid "Alarm level"
 msgstr "Livello di allarme"
 
-#: ogarden_gui.py:628
+#: ogarden_gui.py:628 ogarden_gui.py:647
 msgid "Apply"
 msgstr "Applica"
 
-#: ogarden_gui.py:645 ogarden_gui.py:926
+#: ogarden_gui.py:645 ogarden_gui.py:926 ogarden_gui.py:663 ogarden_gui.py:936
 msgid "Test appliance"
 msgstr "Testa centralina"
 
-#: ogarden_gui.py:647
+#: ogarden_gui.py:647 ogarden_gui.py:665
 msgid "Warning! The test will reset appliance's programming"
 msgstr "Attenzione! Il test cancellerà la programmazione della centralina"
 
-#: ogarden_gui.py:651
+#: ogarden_gui.py:651 ogarden_gui.py:669
 msgid "Start time (HH:MM)"
 msgstr "Inizio (HH:MM)"
 
-#: ogarden_gui.py:659
+#: ogarden_gui.py:659 ogarden_gui.py:677
 msgid "Duration per line (MM)"
 msgstr "Durata per settore (MM)"
 
-#: ogarden_gui.py:689 ogarden_gui.py:830
+#: ogarden_gui.py:689 ogarden_gui.py:830 ogarden_gui.py:706 ogarden_gui.py:842
 #, python-format
 msgid "Wrong start time: %s:%s"
 msgstr "Ora di inizio errata: %s:%s"
 
-#: ogarden_gui.py:697
+#: ogarden_gui.py:697 ogarden_gui.py:714
 #, python-format
 msgid "Wrong duration: %s:%s"
 msgstr "Durata errata: %s:%s"
 
-#: ogarden_gui.py:704
+#: ogarden_gui.py:704 ogarden_gui.py:721
 #, python-format
 msgid "Wrong line number: %s"
 msgstr "Numero di settore errato: %s"
 
-#: ogarden_gui.py:714
+#: ogarden_gui.py:714 ogarden_gui.py:731
 msgid "No day was specified"
 msgstr "Nessun giorno specificato"
 
-#: ogarden_gui.py:810 ogarden_gui.py:816
+#: ogarden_gui.py:810 ogarden_gui.py:816 ogarden_gui.py:824 ogarden_gui.py:829
 msgid "Warning!"
 msgstr "Attenzione!"
 
-#: ogarden_gui.py:816
+#: ogarden_gui.py:816 ogarden_gui.py:829
 msgid "Programs list was modified. Save to disk?"
 msgstr "Lista programmi modificata. Salvare su disco?"
 
-#: ogarden_gui.py:835
+#: ogarden_gui.py:835 ogarden_gui.py:847
 #, python-format
 msgid "Wrong test duration: %s"
 msgstr "Durata del test errata: %s"
 
-#: ogarden_gui.py:928
+#: ogarden_gui.py:928 ogarden_gui.py:938
 msgid "Load programs list"
 msgstr "Carica lista programmi"
 
-#: ogarden_gui.py:930
+#: ogarden_gui.py:930 ogarden_gui.py:940
 msgid "Save programs list"
 msgstr "Salva lista programmi"
 
-#: ogarden_gui.py:932
+#: ogarden_gui.py:932 ogarden_gui.py:942
 msgid "Exit"
 msgstr "Esci"
 
-#: ogarden_gui.py:938
+#: ogarden_gui.py:938 ogarden_gui.py:948
 msgid "Delete program"
 msgstr "Elimina programma"
 
-#: ogarden_gui.py:940
+#: ogarden_gui.py:940 ogarden_gui.py:950
 msgid "Sync appliance"
 msgstr "Sincronizza centralina"
 
-#: ogarden_gui.py:946
+#: ogarden_gui.py:946 ogarden_gui.py:956
 msgid "Check allarms"
 msgstr "Verifica allarmi"
 
@@ -256,3 +257,15 @@ msgstr "Verifica allarmi"
 #, python-format
 msgid "%s (%3s) - line %s "
 msgstr "%s (%3s) - settore %s "
+
+#: ogarden_gui.py:547
+msgid "Serial number"
+msgstr "Numero seriale"
+
+#: ogarden_gui.py:554
+msgid "Date"
+msgstr "Data"
+
+#: ogarden_gui.py:824
+msgid "Programs list was modified. Sync anyway?"
+msgstr "Lista programmi modificata. Sincronizzare?"

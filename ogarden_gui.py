@@ -577,6 +577,7 @@ def displayConfigForm():
 
     avgTempLabel = Label(config, text=_("24h avg. temperature"))
     avgTempLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    row+=1
 
     if fahrenheit:
         fAvgTemp = (float(temperature[1]) * 9/5) + 32
@@ -821,7 +822,7 @@ def encodePrograms(programs):
 def askSync():
     """ Ask the user if the program list has to be synced.
     """
-    return tkMessageBox.askyesno(_("Warning!", "Programs list was modified. Sync anyway?"))
+    return tkMessageBox.askyesno(_("Warning!"), _("Programs list was modified. Sync anyway?"))
 
 def askSave():
     """ Ask the user if the program list has to be saved.
