@@ -529,6 +529,7 @@ def displayConfigForm():
     """
     global config
     global appliance
+    fahrenheit = False
 
     config = Toplevel(mainWindow)
     config.title(_("Configure appliance"))
@@ -564,13 +565,25 @@ def displayConfigForm():
 
     tempLabel = Label(config, text=_("Temperature"))
     tempLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-    tempValueLabel = Label(config, text=temperature[0])
+
+    if fahrenheit:
+        fTemp = (float(temperature[0]) * 9/5) + 32
+        tempValueLabel = Label(config, text=fTemp)
+    else:
+        tempValueLabel = Label(config, text=temperature[0])
+
     tempValueLabel.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
     row+=1
 
     avgTempLabel = Label(config, text=_("24h avg. temperature"))
     avgTempLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-    avgTempValueLabel = Label(config, text=temperature[1])
+
+    if fahrenheit:
+        fAvgTemp = (float(temperature[1]) * 9/5) + 32
+        avgTempValueLabel = Label(config, text=fAvgTemp)
+    else:
+        avgTempValueLabel = Label(config, text=temperature[1])
+
     avgTempValueLabel.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
     row*=1
 
@@ -584,7 +597,13 @@ def displayConfigForm():
     siteLabel = Label(config, text=_("Average external temperature"))
     siteLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
 
-    siteOptions =(_("24 to 34 degrees"), _("20 to 32 degrees"), _("15 to 25 degrees"))
+    if fahrenheit:
+        siteOptions =("75 to 93 degrees", "68 to 90 degrees", \
+                "59 to 77 degrees")
+    else:
+        siteOptions =(_("24 to 34 degrees"), _("20 to 32 degrees"), \
+                _("15 to 25 degrees"))
+
     siteVar = StringVar()
     siteVar.set(siteOptions[int(appliance.sunsite)])
     siteMenu = OptionMenu(config, siteVar, *siteOptions)
