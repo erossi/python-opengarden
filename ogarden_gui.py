@@ -9,9 +9,9 @@
 #
 # Release: 0.3
 
-#===============================================================================
+#====================
 # Modules
-#===============================================================================
+#====================
 
 from Tkinter import *
 import tkMessageBox
@@ -28,914 +28,877 @@ import gettext
 from program import program
 from opengarden import *
 
-#===============================================================================
+#====================
 # Localization
-#===============================================================================
+#====================
 
 def init_localization():
-	'''
-	Set the correct language for the application
-	'''
-	locale.setlocale(locale.LC_ALL, '')	# Use user's preferred locale
-	loc = locale.getdefaultlocale()		# Locale in use
-	t = gettext.translation('opengarden', 'locale', loc, fallback=True)
-	t.install()
+    """ Set the correct language for the application
+    """
+    locale.setlocale(locale.LC_ALL, '')    # Use user's preferred locale
+    loc = locale.getdefaultlocale()        # Locale in use
+    t = gettext.translation('opengarden', 'locale', loc, fallback=True)
+    t.install()
 
 init_localization()
 
-#===============================================================================
+#====================
 # Global data
-#===============================================================================
+#====================
 
 appName = "Open Garden"
 
-appliance		= OpenGarden()	#The appliance
-device			= None			#Which port the appliance is connected to
+appliance = OpenGarden() #The appliance
+device = None #Which port the appliance is connected to
 
-isConnected		= False			#Connection with the appliance
-maxPrograms		= 19			#Maximum nuber of programs the appliance can store
-selectedProgram	= False			#Track which program is being currently selected
-toSave			= False			#Track if the list of programs needs to be saved
-toSync			= False			#Track if the list of programs nedds to be synced
+isConnected = False #Connection with the appliance
+maxPrograms = 19 #Maximum nuber of programs the appliance can store
+selectedProgram = False #Track which program is being currently selected
+toSave = False #Track if the list of programs needs to be saved
+toSync = False #Track if the list of programs nedds to be synced
 
-form			= False			#Add/Edit program form
-config			= False			#Configure appliance form
-test			= False			#Test appliace form
-note			= False			#Note editor window
+form = False #Add/Edit program form
+config = False #Configure appliance form
+test = False #Test appliace form
+note = False #Note editor window
 
-programs		= []			#List of programs
-noteContent		= ''			#Notes associated with programs
+programs = [] #List of programs
+noteContent = '' #Notes associated with programs
 
-days			= (_("mon"),_("tue"),_("wed"),_("thu"),_("fri"),_("sat"),_("sun"))
-valveSettings	= {"bistable":_("Bistable BATT"), "monostable":"24Vac"}
-alarmSettings	= {"HIGH":"HIGH = N.C.", "LOW":"LOW = N.O."}
-noteMarker		= "#Notes begin here\n"
+days = (_("mon"),_("tue"),_("wed"),_("thu"),_("fri"),_("sat"),_("sun"))
+valveSettings = {"bistable":_("Bistable BATT"), "monostable":"24Vac"}
+alarmSettings = {"HIGH":"HIGH = N.C.", "LOW":"LOW = N.O."}
+noteMarker = "#Notes begin here\n"
 
-#===============================================================================
+#====================
 # Interface layout settings
-#===============================================================================
+#====================
 
 fmtButtonWidth = 20
 fmtPadding = 5
 
-#===============================================================================
+#====================
 # Callbacks
-#===============================================================================
+#====================
 
 def exit():
-	"""
-	Exit program
-	"""
-	global isConnected,toSave
+    """
+    Exit program
+    """
+    global isConnected,toSave
 
-	#Check if the appliance is connected, then disconnect
-	if isConnected:
-		disconnect()
-	
-	#Check if the programs list needs to be saved
-	if toSave:
-		if askSave():
-			savePrograms()
+    #Check if the appliance is connected, then disconnect
+    if isConnected:
+        disconnect()
+    
+    #Check if the programs list needs to be saved
+    if toSave:
+        if askSave():
+            savePrograms()
 
-	mainWindow.quit()
+    mainWindow.quit()
 
 def connect():
-	"""
-	Connect the appliance, Sync time and get the stored programs list and check alarms
-	"""
-	global isConnected,appliance,device,programs,toSave
+    """ Connect the appliance, Sync time and get the stored programs list and check alarms
+    """
+    global isConnected,appliance,device,programs,toSave
 
-	try:
-		appliance.connect(device)
-	except:
-		showError(_("Unable to connect to the appliance"))
-		isConnected = False
-	else:
-		if not appliance.version:
-			showError(_("Unknown appliance"))
-		else:
-			isConnected = True
-			
-			#Get appliance's information
-			appliance.load()
+    try:
+        appliance.connect(device)
+    except:
+        showError(_("Unable to connect to the appliance"))
+        isConnected = False
+    else:
+        if not appliance.version:
+            showError(_("Unknown appliance"))
+        else:
+            isConnected = True
 
-			#Sync appliance's time
-			appliance.time(calendar.timegm(time.localtime()))
+            #Get appliance's information
+            appliance.load()
 
-			#Check if the programs list needs to be saved
-			if toSave:
-				if askSave():
-					savePrograms()
+            #Sync appliance's time
+            appliance.time(calendar.timegm(time.localtime()))
 
-			#Load programs
-			programs = decodePrograms(appliance.programs)
-			loadPrograms()
-			enableButton(configureButton)
-			enableButton(testButton)
-			if len(programs) > 0:
-				enableButton(saveButton)
-			disableButton(syncButton)
+            #Check if the programs list needs to be saved
+            if toSave:
+                if askSave():
+                    savePrograms()
 
-			#Check alarms
-			setAlarmStatus(appliance.get_alarm())
-			enableButton(alarmButton)
+            #Load programs
+            programs = decodePrograms(appliance.programs)
+            loadPrograms()
+            enableButton(configureButton)
+            enableButton(testButton)
+            if len(programs) > 0:
+                enableButton(saveButton)
+            disableButton(syncButton)
 
-	setConnectorStatus()
+            #Check alarms
+            setAlarmStatus(appliance.get_alarm())
+            enableButton(alarmButton)
+
+    setConnectorStatus()
 
 def disconnect():
-	"""
-	Disconnect the appliance
-	"""
-	global isConnected, toSync
+    """ Disconnect the appliance
+    """
+    global isConnected, toSync
 
-	#Check if the program list has to be synced
-	if toSync:
-		if askSync():
-			syncAppliance()
+    #Check if the program list has to be synced
+    if toSync:
+        if askSync():
+            syncAppliance()
 
-	appliance.disconnect()
-	isConnected = False
-	setConnectorStatus()
-	setAlarmStatus(None)
+    appliance.disconnect()
+    isConnected = False
+    setConnectorStatus()
+    setAlarmStatus(None)
 
-	#Disable buttons
-	disableButton(configureButton)
-	disableButton(testButton)
-	disableButton(syncButton)
-	disableButton(alarmButton)
+    #Disable buttons
+    disableButton(configureButton)
+    disableButton(testButton)
+    disableButton(syncButton)
+    disableButton(alarmButton)
 
 def addProgram():
-	"""
-	Add a new program
-	"""
-	displayProgramForm("add")
+    """ Add a new program
+    """
+    displayProgramForm("add")
 
 def editProgram():
-	"""
-	Edit the currently selected program
-	"""
-	global selectedProgram, programs
+    """ Edit the currently selected program
+    """
+    global selectedProgram, programs
 
-	displayProgramForm("edit",programs[selectedProgram])
+    displayProgramForm("edit",programs[selectedProgram])
 
 def closeProgramForm():
-	"""
-	Close add/edit program form (cancel action)
-	"""
-	form.destroy()
+    """ Close add/edit program form (cancel action)
+    """
+    form.destroy()
 
 def closeTestForm():
-	"""
-	Close appliance test form (cancel action)
-	"""
-	test.destroy()
+    """ Close appliance test form (cancel action)
+    """
+    test.destroy()
 
 def closeConfigForm():
-	"""
-	Close appliance configuration form (cancel action)
-	"""
-	config.destroy()
+    """ Close appliance configuration form (cancel action)
+    """
+    config.destroy()
 
 def processProgram(action):
-	"""
-	Get program data from form, validate them and create/update a program.
-	"""
-	data = validateProgram()
-	if data:
-		storeProgram(action,data)
-		form.destroy()
+    """ Get program data from form, validate them and
+    create/update a program.
+    """
+    data = validateProgram()
+    if data:
+        storeProgram(action,data)
+        form.destroy()
 
 def checkDay(day):
-	"""
-	Check if a day was choosen in the program add/edit form
-	"""
-	return not day.get()
+    """ Check if a day was choosen in the program add/edit form
+    """
+    return not day.get()
 
 def storeProgram(action,data):
-	"""
-	Store a program in the programs list
-	"""
-	global programs,selectedProgram
+    """ Store a program in the programs list
+    """
+    global programs,selectedProgram
 
-	if action == "add":
-		p = program()
-	else:
-		p = programs[selectedProgram]
+    if action == "add":
+        p = program()
+    else:
+        p = programs[selectedProgram]
 
-	p.startTime(data['start'])
-	p.length(data['length'])
-	p.line(data['line'])
-	p.days(data['days'])
+    p.startTime(data['start'])
+    p.length(data['length'])
+    p.line(data['line'])
+    p.days(data['days'])
 
-	if action == "add":
-		programs.append(p)
-	else:
-		programs[selectedProgram] = p
+    if action == "add":
+        programs.append(p)
+    else:
+        programs[selectedProgram] = p
 
-	#Track the change to the list of programs
-	global toSave, toSync
-	toSave = True
-	toSync = True
-	loadPrograms()
+    #Track the change to the list of programs
+    global toSave, toSync
+    toSave = True
+    toSync = True
+    loadPrograms()
 
-	#Enable relevant buttons
-	enableButton(saveButton)
-	if isConnected:
-		enableButton(syncButton)
+    #Enable relevant buttons
+    enableButton(saveButton)
+    if isConnected:
+        enableButton(syncButton)
 
 def selectedProgram(event):
-	"""
-	Track which program has been selected in the programsList
-	listbox
-	"""
-	global selectedProgram
+    """ Track which program has been selected in the programsList
+    listbox
+    """
+    global selectedProgram
 
-	if event.widget.curselection():
-		selectedProgram = int(event.widget.curselection()[0])	#The selected program
+    if event.widget.curselection():
+        selectedProgram = int(event.widget.curselection()[0])    #The selected program
 
-		#Enable relevant buttons
-		enableButton(editButton)
-		enableButton(deleteButton)
+        #Enable relevant buttons
+        enableButton(editButton)
+        enableButton(deleteButton)
 
 def deleteProgram():
-	"""
-	Delete the currently selected program
-	"""
-	global selectedProgram, programs, toSave, toSync
-	del programs[selectedProgram]
-	toSave = True
-	toSync = True
-	loadPrograms()
+    """ Delete the currently selected program
+    """
+    global selectedProgram, programs, toSave, toSync
+    del programs[selectedProgram]
+    toSave = True
+    toSync = True
+    loadPrograms()
 
 def savePrograms():
-	"""
-	Save the current programs list to file.
-	"""
-	global programs, toSave, noteContent, noteMarker
+    """ Save the current programs list to file.
+    """
+    global programs, toSave, noteContent, noteMarker
 
-	fileName = tkFileDialog.asksaveasfilename(title=_("Save programs"),filetypes=[(_("Data"),"*.dat")])
-	if len(fileName) > 0:
-		try:
-			f = open(fileName, "wb")
-		except:
-			showError(_("Can't save data file"))
-			return
-		#Save programs
-		for program in encodePrograms(programs):
-			f.write(program)
-		#Save notes
-		f.write(noteMarker)
-		f.write(noteContent)
-		f.close()
-		disableButton(saveButton)
-		toSave = False
+    fileName = tkFileDialog.asksaveasfilename(title=_("Save programs"),filetypes=[(_("Data"),"*.dat")])
+    if len(fileName) > 0:
+        try:
+            f = open(fileName, "wb")
+        except:
+            showError(_("Can't save data file"))
+            return
+        #Save programs
+        for program in encodePrograms(programs):
+            f.write(program)
+        #Save notes
+        f.write(noteMarker)
+        f.write(noteContent)
+        f.close()
+        disableButton(saveButton)
+        toSave = False
 
 def readPrograms():
-	"""
-	Read a list of programs from a previously saved data file.
-	"""
-	global programs,isConnected,toSync,toSave,noteContent,noteMarker
+    """ Read a list of programs from a previously saved data file.
+    """
+    global programs,isConnected,toSync,toSave,noteContent,noteMarker
 
-	if isConnected and toSync:
-		if askSync():
-			syncAppliance()
+    if isConnected and toSync:
+        if askSync():
+            syncAppliance()
 
-	if toSave:
-		if askSave():
-			savePrograms()
+    if toSave:
+        if askSave():
+            savePrograms()
 
-	fileName = tkFileDialog.askopenfilename(title=_("Load programs"),filetypes=[(_("Data"),"*.dat")])
-	if len(fileName) > 0:
-		try:
-			f = open(fileName, "rb")
-		except:
-			showError(_("Can't read data file"))
-			return
-		lines = f.readlines()
-		plines = []		#Lines representing programs
+    fileName = tkFileDialog.askopenfilename(title=_("Load programs"),filetypes=[(_("Data"),"*.dat")])
+    if len(fileName) > 0:
+        try:
+            f = open(fileName, "rb")
+        except:
+            showError(_("Can't read data file"))
+            return
+        lines = f.readlines()
+        plines = []        #Lines representing programs
 
-		#Separate programs and notes
-		storeProgram = True
-		for line in lines:
-			if line == noteMarker:
-				storeProgram = False
-				continue
-			if storeProgram:
-				plines.append(line)
-			else:
-				noteContent = noteContent + line
-		f.close()
+        #Separate programs and notes
+        storeProgram = True
+        for line in lines:
+            if line == noteMarker:
+                storeProgram = False
+                continue
+            if storeProgram:
+                plines.append(line)
+            else:
+                noteContent = noteContent + line
+        f.close()
 
-		#Decode programs (if any)
-		if plines:
-			programs = decodePrograms(plines)
-			loadPrograms()
-			toSync = True
+        #Decode programs (if any)
+        if plines:
+            programs = decodePrograms(plines)
+            loadPrograms()
+            toSync = True
 
 def syncAppliance():
-	"""
-	Sync the appliance.
-	"""
-	global programs, toSync
+    """ Sync the appliance.
+    """
+    global programs, toSync
 
-	appliance.programs = encodePrograms(programs)
-	appliance.save()
-	toSync = False
+    appliance.programs = encodePrograms(programs)
+    appliance.save()
+    toSync = False
 
-	disableButton(syncButton)
+    disableButton(syncButton)
 
 def configAppliance(site,siteOptions,valve,led,alarm):
-	"""
-	Config the appliance
-	"""
-	global appliance
-	global config
+    """ Config the appliance
+    """
+    global appliance
+    global config
 
-	appliance.sunsite = siteOptions.index(site.get())
-	appliance.valve = setFromLabel(valveSettings,valve.get())
-	appliance.led = led.get()
-	appliance.alarm = setFromLabel(alarmSettings,alarm.get())
-	appliance.save()
-	config.destroy()
+    appliance.sunsite = siteOptions.index(site.get())
+    appliance.valve = setFromLabel(valveSettings,valve.get())
+    appliance.led = led.get()
+    appliance.alarm = setFromLabel(alarmSettings,alarm.get())
+    appliance.save()
+    config.destroy()
 
 def checkAlarms():
-	"""
-	Check if there are active alarms
-	"""
-	global appliance
-	setAlarmStatus(appliance.get_alarm())
+    """ Check if there are active alarms
+    """
+    global appliance
+    setAlarmStatus(appliance.get_alarm())
 
 def openNoteEditor():
-	"""
-	Open the note editor
-	"""
-	global note, noteContent
+    """ Open the note editor
+    """
+    global note, noteContent
 
-	#Build the editor window
-	note = Toplevel(mainWindow)
-	note.title(_("Notes"))
+    #Build the editor window
+    note = Toplevel(mainWindow)
+    note.title(_("Notes"))
 
-	#Add text widget with scrollbar
-	text = Text(note, background='white')
-	scroll = Scrollbar(note)
-	text.configure(yscrollcommand=scroll.set)
-	text.grid(row=0, column=0, columnspan=3, padx=fmtPadding, pady=fmtPadding, sticky=N+W+E+S)
-	scroll.grid(row=0, column=3, sticky=N+S)
+    #Add text widget with scrollbar
+    text = Text(note, background='white')
+    scroll = Scrollbar(note)
+    text.configure(yscrollcommand=scroll.set)
+    text.grid(row=0, column=0, columnspan=3, padx=fmtPadding, pady=fmtPadding, sticky=N+W+E+S)
+    scroll.grid(row=0, column=3, sticky=N+S)
 
-	#Display note content
-	text.insert(END,noteContent)
-	text.focus()
+    #Display note content
+    text.insert(END,noteContent)
+    text.focus()
 
-	#Disable Notes button
-	disableButton(notesButton)
+    #Disable Notes button
+    disableButton(notesButton)
 
-	#Bind note editor events
-	note.protocol("WM_DELETE_WINDOW", closeNoteEditor)
-	note.bind('<Key>', lambda event, widget = text: storeNoteContent(event,widget))
+    #Bind note editor events
+    note.protocol("WM_DELETE_WINDOW", closeNoteEditor)
+    note.bind('<Key>', lambda event, widget = text: storeNoteContent(event,widget))
 
 def closeNoteEditor():
-	"""
-	Close the note editor
-	"""
-	#Enable Notes button
-	enableButton(notesButton)
-	note.destroy()
+    """ Close the note editor
+    """
+    #Enable Notes button
+    enableButton(notesButton)
+    note.destroy()
 
 def storeNoteContent(event,widget):
-	"""
-	Store note content. event (a key pressed) is ignored.
-	"""
-	global noteContent, toSave
+    """ Store note content. event (a key pressed) is ignored.
+    """
+    global noteContent, toSave
 
-	#Get note content
-	noteContent = widget.get(1.0,END)[:-1] #The last character is always a \n
+    #Get note content
+    noteContent = widget.get(1.0,END)[:-1] #The last character is always a \n
 
-	#Mark programs list as changed
-	toSave = True
-	enableButton(saveButton)
+    #Mark programs list as changed
+    toSave = True
+    enableButton(saveButton)
 
-#===============================================================================
+#====================
 # General functions
-#===============================================================================
+#====================
 
 def showError(string):
-	"""
-	Display an error message.
-	"""
-	tkMessageBox.showerror(title=_("Error"), message=string)
+    """ Display an error message.
+    """
+    tkMessageBox.showerror(title=_("Error"), message=string)
 
 def setConnectorStatus():
-	"""
-	Set Connector's attributes based on the status of the connection with the
-	appliance
-	"""
-	if isConnected :
-		connectButton.configure(text=_("Disconnect"), command=disconnect)
-		connectLabel.configure(text=_("Connected"))
-	else:
-		connectButton.configure(text=_("Connect"), command=connect)
-		connectLabel.configure(text=_("Not connected"))
+    """ Set Connector's attributes based on the status
+    of the connection with the appliance
+    """
+    if isConnected :
+        connectButton.configure(text=_("Disconnect"), command=disconnect)
+        connectLabel.configure(text=_("Connected"))
+    else:
+        connectButton.configure(text=_("Connect"), command=connect)
+        connectLabel.configure(text=_("Not connected"))
 
 def setAlarmStatus(alarm):
-	"""
-	Display alarm status information in the bottom bar
-	"""
-	if alarm == None:
-		alarmStatus.configure(text="")
-	else:
-		if alarm == "ON":
-			alarmStatus.configure(text=_("Warning! Alarms reported"),fg="red")
-		else:
-			alarmStatus.configure(text=_("No alarm reported"),fg="black")
+    """ Display alarm status information in the bottom bar
+    """
+    if alarm == None:
+        alarmStatus.configure(text="")
+    else:
+        if alarm == "ON":
+            alarmStatus.configure(text=_("Warning! Alarms reported"),fg="red")
+        else:
+            alarmStatus.configure(text=_("No alarm reported"),fg="black")
 
 def disableButton(button):
-	"""
-	Disable a button
-	"""
-	button.configure(state=DISABLED)
+    """ Disable a button
+    """
+    button.configure(state=DISABLED)
 
 def enableButton(button):
-	"""
-	Enable a button
-	"""
-	button.configure(state=ACTIVE)
+    """ Enable a button
+    """
+    button.configure(state=ACTIVE)
 
 def makeModal(window,parent):
-	"""
-	Turn window into a modal dialog.
-	"""
-	window.focus_set()
-	window.grab_set()
-	window.transient(parent)
-	window.wait_window(window)
+    """ Turn window into a modal dialog.
+    """
+    window.focus_set()
+    window.grab_set()
+    window.transient(parent)
+    window.wait_window(window)
 
 def displayProgramForm(action, program=None):
-	"""
-	Display the form to add or edit a program.
-	"""
-	global form
+    """ Display the form to add or edit a program.
+    """
+    global form
 
-	title = _("New program") if action == "add" else _("Modify program")
+    title = _("New program") if action == "add" else _("Modify program")
 
-	form = Toplevel(mainWindow)
-	form.title(title)
+    form = Toplevel(mainWindow)
+    form.title(title)
 
-	#Program's line
-	lineLabel = Label(form, text=_("Line"))
-	lineLabel.grid(row=0, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-	lineSpin = Spinbox(form, name="line", width=(fmtButtonWidth - fmtPadding)/2, from_=1, to=8, justify=RIGHT)
-	lineSpin.grid(row=0, column=1, sticky=E, padx=fmtPadding, pady=fmtPadding)
+    #Program's line
+    lineLabel = Label(form, text=_("Line"))
+    lineLabel.grid(row=0, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    lineSpin = Spinbox(form, name="line", width=(fmtButtonWidth - fmtPadding)/2, from_=1, to=8, justify=RIGHT)
+    lineSpin.grid(row=0, column=1, sticky=E, padx=fmtPadding, pady=fmtPadding)
 
-	#Program's start hour/minute
-	startLabel = Label(form, text=_("Start (HH:MM)"))
-	startLabel.grid(row=1, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-	startHourSpin = Spinbox(form, name="startHour", width=(fmtButtonWidth - fmtPadding)/2, from_=0, to=23, justify=RIGHT)
-	startHourSpin.grid(row=1, column=1, sticky=W, padx=fmtPadding, pady=fmtPadding)
-	startMinuteSpin = Spinbox(form, name="startMinute", width=(fmtButtonWidth - fmtPadding)/2, from_=0, to=59, justify=RIGHT)
-	startMinuteSpin.grid(row=1, column=1, sticky=E, padx=fmtPadding, pady=fmtPadding)
+    #Program's start hour/minute
+    startLabel = Label(form, text=_("Start (HH:MM)"))
+    startLabel.grid(row=1, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    startHourSpin = Spinbox(form, name="startHour", width=(fmtButtonWidth - fmtPadding)/2, from_=0, to=23, justify=RIGHT)
+    startHourSpin.grid(row=1, column=1, sticky=W, padx=fmtPadding, pady=fmtPadding)
+    startMinuteSpin = Spinbox(form, name="startMinute", width=(fmtButtonWidth - fmtPadding)/2, from_=0, to=59, justify=RIGHT)
+    startMinuteSpin.grid(row=1, column=1, sticky=E, padx=fmtPadding, pady=fmtPadding)
 
-	#Program's lenght
-	lenghtLabel = Label(form, text=_("Duration (HH:MM)"))
-	lenghtLabel.grid(row=2, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-	lengthHourSpin = Spinbox(form, name="lengthHours", width=(fmtButtonWidth - fmtPadding)/2, from_=0, to=23, justify=RIGHT)
-	lengthHourSpin.grid(row=2, column=1, sticky=W, padx=fmtPadding, pady=fmtPadding)
-	lengthMinuteSpin = Spinbox(form, name="lengthMinutes", width=(fmtButtonWidth - fmtPadding)/2, from_=0, to=59, justify=RIGHT)
-	lengthMinuteSpin.grid(row=2, column=1, sticky=E, padx=fmtPadding, pady=fmtPadding)
-	
-	#Days of week
-	(mon, tue, wed, thu, fri, sat, sun) = (IntVar(), IntVar(), IntVar(), IntVar(), IntVar(), IntVar(), IntVar())
-	chkMonday = Checkbutton(form, name=days[0], text=days[0].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=mon, command=(lambda day=mon: checkDay(day)))
-	chkMonday.grid(row=4, column=0, sticky=W, padx=fmtPadding, pady=fmtPadding)
-	chkTuesday = Checkbutton(form, name=days[1], text=days[1].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=tue, command=(lambda day=tue: checkDay(day)))
-	chkTuesday.grid(row=4, column=0, sticky=E, padx=fmtPadding, pady=fmtPadding)
-	chkWednesday = Checkbutton(form, name=days[2], text=days[2].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=wed, command=(lambda day=wed: checkDay(day)))
-	chkWednesday.grid(row=4, column=1, sticky=W, padx=fmtPadding, pady=fmtPadding)
-	chkThursday = Checkbutton(form, name=days[3], text=days[3].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=thu, command=(lambda day=thu: checkDay(day)))
-	chkThursday.grid(row=4, column=1, sticky=E, padx=fmtPadding, pady=fmtPadding)
-	chkFriday = Checkbutton(form, name=days[4], text=days[4].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=fri, command=(lambda day=fri: checkDay(day)))
-	chkFriday.grid(row=5, column=0, sticky=W, padx=fmtPadding, pady=fmtPadding)
-	chkSaturday = Checkbutton(form, name=days[5], text=days[5].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=sat, command=(lambda day=sat: checkDay(day)))
-	chkSaturday.grid(row=5, column=0, sticky=E, padx=fmtPadding, pady=fmtPadding)
-	chkSunday = Checkbutton(form, name=days[6], text=days[6].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=sun, command=(lambda day=sun: checkDay(day)))
-	chkSunday.grid(row=5, column=1, sticky=W, padx=fmtPadding, pady=fmtPadding)
+    #Program's lenght
+    lenghtLabel = Label(form, text=_("Duration (HH:MM)"))
+    lenghtLabel.grid(row=2, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    lengthHourSpin = Spinbox(form, name="lengthHours", width=(fmtButtonWidth - fmtPadding)/2, from_=0, to=23, justify=RIGHT)
+    lengthHourSpin.grid(row=2, column=1, sticky=W, padx=fmtPadding, pady=fmtPadding)
+    lengthMinuteSpin = Spinbox(form, name="lengthMinutes", width=(fmtButtonWidth - fmtPadding)/2, from_=0, to=59, justify=RIGHT)
+    lengthMinuteSpin.grid(row=2, column=1, sticky=E, padx=fmtPadding, pady=fmtPadding)
+    
+    #Days of week
+    (mon, tue, wed, thu, fri, sat, sun) = (IntVar(), IntVar(), IntVar(), IntVar(), IntVar(), IntVar(), IntVar())
+    chkMonday = Checkbutton(form, name=days[0], text=days[0].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=mon, command=(lambda day=mon: checkDay(day)))
+    chkMonday.grid(row=4, column=0, sticky=W, padx=fmtPadding, pady=fmtPadding)
+    chkTuesday = Checkbutton(form, name=days[1], text=days[1].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=tue, command=(lambda day=tue: checkDay(day)))
+    chkTuesday.grid(row=4, column=0, sticky=E, padx=fmtPadding, pady=fmtPadding)
+    chkWednesday = Checkbutton(form, name=days[2], text=days[2].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=wed, command=(lambda day=wed: checkDay(day)))
+    chkWednesday.grid(row=4, column=1, sticky=W, padx=fmtPadding, pady=fmtPadding)
+    chkThursday = Checkbutton(form, name=days[3], text=days[3].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=thu, command=(lambda day=thu: checkDay(day)))
+    chkThursday.grid(row=4, column=1, sticky=E, padx=fmtPadding, pady=fmtPadding)
+    chkFriday = Checkbutton(form, name=days[4], text=days[4].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=fri, command=(lambda day=fri: checkDay(day)))
+    chkFriday.grid(row=5, column=0, sticky=W, padx=fmtPadding, pady=fmtPadding)
+    chkSaturday = Checkbutton(form, name=days[5], text=days[5].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=sat, command=(lambda day=sat: checkDay(day)))
+    chkSaturday.grid(row=5, column=0, sticky=E, padx=fmtPadding, pady=fmtPadding)
+    chkSunday = Checkbutton(form, name=days[6], text=days[6].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=sun, command=(lambda day=sun: checkDay(day)))
+    chkSunday.grid(row=5, column=1, sticky=W, padx=fmtPadding, pady=fmtPadding)
 
-	#Ok button
-	okButton = Button(form, width=fmtButtonWidth, text="Ok", command=(lambda: processProgram(action)))
-	okButton.grid(row=6, column=0, padx=fmtPadding, pady=fmtPadding)
+    #Ok button
+    okButton = Button(form, width=fmtButtonWidth, text="Ok", command=(lambda: processProgram(action)))
+    okButton.grid(row=6, column=0, padx=fmtPadding, pady=fmtPadding)
 
-	#Cancel button
-	cancelButton = Button(form, width=fmtButtonWidth, text=_("Cancel"), command=closeProgramForm)
-	cancelButton.grid(row=6, column=1, padx=fmtPadding, pady=fmtPadding)
+    #Cancel button
+    cancelButton = Button(form, width=fmtButtonWidth, text=_("Cancel"), command=closeProgramForm)
+    cancelButton.grid(row=6, column=1, padx=fmtPadding, pady=fmtPadding)
 
-	#In case of edit request, load the form with the appropriate values
-	if program:
-		(hour,minute) = program.startTime().split(':')
-		startHourSpin.delete(0,END)
-		startHourSpin.insert(0,hour)
-		startMinuteSpin.delete(0,END)
-		startMinuteSpin.insert(0,minute)
+    #In case of edit request, load the form with the appropriate values
+    if program:
+        (hour,minute) = program.startTime().split(':')
+        startHourSpin.delete(0,END)
+        startHourSpin.insert(0,hour)
+        startMinuteSpin.delete(0,END)
+        startMinuteSpin.insert(0,minute)
 
-		length = int(program.length())
-		hours = length / 60
-		minutes = length % 60
-		lengthHourSpin.delete(0,END)
-		lengthHourSpin.insert(0,hours)
-		lengthMinuteSpin.delete(0,END)
-		lengthMinuteSpin.insert(0,minutes)
+        length = int(program.length())
+        hours = length / 60
+        minutes = length % 60
+        lengthHourSpin.delete(0,END)
+        lengthHourSpin.insert(0,hours)
+        lengthMinuteSpin.delete(0,END)
+        lengthMinuteSpin.insert(0,minutes)
 
-		lineSpin.delete(0,END)
-		lineSpin.insert(0,program.line())
+        lineSpin.delete(0,END)
+        lineSpin.insert(0,program.line())
 
-		for day in program.days():
-			form.nametowidget(day).invoke()
+        for day in program.days():
+            form.nametowidget(day).invoke()
 
-	makeModal(form,mainWindow)
+    makeModal(form,mainWindow)
 
 def displayConfigForm():
-	"""
-	Display the form to configure the appliance
-	"""
-	global config
-	global appliance
+    """ Display the form to configure the appliance
+    """
+    global config
+    global appliance
 
-	config = Toplevel(mainWindow)
-	config.title(_("Configure appliance"))
+    config = Toplevel(mainWindow)
+    config.title(_("Configure appliance"))
 
-        row = 0
+    row = 0
 
-	#Appliance's version
-	idLabel = Label(config, text=_("Appliance version"))
-	idLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-	idValueLabel = Label(config, text=appliance.version)
-	idValueLabel.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-        row+=1
+    #Appliance's version
+    idLabel = Label(config, text=_("Appliance version"))
+    idLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    idValueLabel = Label(config, text=appliance.version)
+    idValueLabel.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    row+=1
 
-	# Appliance's serial number
-        idLabel = Label(config, text=_("Serial number"))
-	idLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-	idValueLabel = Label(config, text=appliance.serial)
-	idValueLabel.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-        row+=1
+    # Appliance's serial number
+    idLabel = Label(config, text=_("Serial number"))
+    idLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    idValueLabel = Label(config, text=appliance.serial)
+    idValueLabel.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    row+=1
 
-	# Appliance's time
-        idLabel = Label(config, text=_("Date"))
-	idLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-	idValueLabel = Label(config, \
-                text=time.strftime("%d %b %Y %H:%M:%S", \
-                time.gmtime(int(appliance.time()))))
-	idValueLabel.grid(row=row, column=1, padx=fmtPadding, \
-                pady=fmtPadding, sticky=N+W)
-        row+=1
+    # Appliance's time
+    idLabel = Label(config, text=_("Date"))
+    idLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    idValueLabel = Label(config, \
+            text=time.strftime("%d %b %Y %H:%M:%S", \
+            time.gmtime(int(appliance.time()))))
+    idValueLabel.grid(row=row, column=1, padx=fmtPadding, \
+            pady=fmtPadding, sticky=N+W)
+    row+=1
 
-	#Temperature
-	temperature = appliance.temperature()
+    #Temperature
+    temperature = appliance.temperature()
 
-	tempLabel = Label(config, text=_("Temperature"))
-	tempLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-	tempValueLabel = Label(config, text=temperature[0])
-	tempValueLabel.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-        row+=1
+    tempLabel = Label(config, text=_("Temperature"))
+    tempLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    tempValueLabel = Label(config, text=temperature[0])
+    tempValueLabel.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    row+=1
 
-	avgTempLabel = Label(config, text=_("24h avg. temperature"))
-	avgTempLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-	avgTempValueLabel = Label(config, text=temperature[1])
-	avgTempValueLabel.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-        row*=1
+    avgTempLabel = Label(config, text=_("24h avg. temperature"))
+    avgTempLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    avgTempValueLabel = Label(config, text=temperature[1])
+    avgTempValueLabel.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    row*=1
 
-	dfactorLabel = Label(config, text="D Factor")
-	dfactorLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-	dfactorValueLabel = Label(config, text=temperature[2])
-	dfactorValueLabel.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-        row+=1
+    dfactorLabel = Label(config, text="D Factor")
+    dfactorLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    dfactorValueLabel = Label(config, text=temperature[2])
+    dfactorValueLabel.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    row+=1
 
-	#Site
-	siteLabel = Label(config, text=_("Average external temperature"))
-	siteLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    #Site
+    siteLabel = Label(config, text=_("Average external temperature"))
+    siteLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
 
-	siteOptions =(_("24 to 34 degrees"), _("20 to 32 degrees"), _("15 to 25 degrees"))
-	siteVar = StringVar()
-	siteVar.set(siteOptions[int(appliance.sunsite)])
-	siteMenu = OptionMenu(config, siteVar, *siteOptions)
-	siteMenu.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-        row+=1
+    siteOptions =(_("24 to 34 degrees"), _("20 to 32 degrees"), _("15 to 25 degrees"))
+    siteVar = StringVar()
+    siteVar.set(siteOptions[int(appliance.sunsite)])
+    siteMenu = OptionMenu(config, siteVar, *siteOptions)
+    siteMenu.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    row+=1
 
-	#Valve
-	valveLabel = Label(config, text=_("Valve type"))
-	valveLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    #Valve
+    valveLabel = Label(config, text=_("Valve type"))
+    valveLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
 
-	valveOptions = valveSettings.values()
-	valveVar = StringVar()
-	valveVar.set(valveSettings[appliance.valve])
-	valveMenu = OptionMenu(config, valveVar, *valveOptions)
-	valveMenu.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-        row+=1
+    valveOptions = valveSettings.values()
+    valveVar = StringVar()
+    valveVar.set(valveSettings[appliance.valve])
+    valveMenu = OptionMenu(config, valveVar, *valveOptions)
+    valveMenu.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    row+=1
 
-	#Led
-	ledLabel = Label(config, text=_("Leds configuration"))
-	ledLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    #Led
+    ledLabel = Label(config, text=_("Leds configuration"))
+    ledLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
 
-	ledOptions =("ON", "OFF")
-	ledVar = StringVar()
-	ledVar.set(appliance.led)
-	ledMenu = OptionMenu(config, ledVar, *ledOptions)
-	ledMenu.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-        row+=1
+    ledOptions =("ON", "OFF")
+    ledVar = StringVar()
+    ledVar.set(appliance.led)
+    ledMenu = OptionMenu(config, ledVar, *ledOptions)
+    ledMenu.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    row+=1
 
-	#Alarms
-	alarmLabel = Label(config, text=_("Alarm level"))
-	alarmLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    #Alarms
+    alarmLabel = Label(config, text=_("Alarm level"))
+    alarmLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
 
-	alarmOptions = alarmSettings.values()
-	alarmVar = StringVar()
-	alarmVar.set(alarmSettings[appliance.alarm])
-	alarmMenu = OptionMenu(config, alarmVar, *alarmOptions)
-	alarmMenu.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-        row+=1
+    alarmOptions = alarmSettings.values()
+    alarmVar = StringVar()
+    alarmVar.set(alarmSettings[appliance.alarm])
+    alarmMenu = OptionMenu(config, alarmVar, *alarmOptions)
+    alarmMenu.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    row+=1
 
-	#Apply button
-	applyButton = Button(config, width=fmtButtonWidth, text=_("Apply"), command=(lambda: configAppliance(siteVar,siteOptions,valveVar,ledVar,alarmVar)))
-	applyButton.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding)
+    #Apply button
+    applyButton = Button(config, width=fmtButtonWidth, text=_("Apply"), command=(lambda: configAppliance(siteVar,siteOptions,valveVar,ledVar,alarmVar)))
+    applyButton.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding)
 
-	#Cancel button
-	cancelButton = Button(config, width=fmtButtonWidth, text=_("Cancel"), command=closeConfigForm)
-	cancelButton.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding)
+    #Cancel button
+    cancelButton = Button(config, width=fmtButtonWidth, text=_("Cancel"), command=closeConfigForm)
+    cancelButton.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding)
 
-	makeModal(config,mainWindow)
+    makeModal(config,mainWindow)
 
 def displayTestForm():
-	"""
-	Display the form to test the appliance
-	"""
-	global test
-	global appliance
+    """ Display the form to test the appliance
+    """
+    global test
+    global appliance
 
-	test = Toplevel(mainWindow)
-	test.title(_("Test appliance"))
+    test = Toplevel(mainWindow)
+    test.title(_("Test appliance"))
 
-	warnLabel = Label(test, text=_("Warning! The test will reset appliance's programming"))
-	warnLabel.grid(row=0, column=0, columnspan=2, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    warnLabel = Label(test, text=_("Warning! The test will reset appliance's programming"))
+    warnLabel.grid(row=0, column=0, columnspan=2, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
 
-	#Test start hour/minute
-	startLabel = Label(test, text=_("Start time (HH:MM)"))
-	startLabel.grid(row=1, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-	startHourSpin = Spinbox(test, name="startHour", width=(fmtButtonWidth - fmtPadding)/2, from_=0, to=23, justify=RIGHT)
-	startHourSpin.grid(row=1, column=1, sticky=W, padx=fmtPadding, pady=fmtPadding)
-	startMinuteSpin = Spinbox(test, name="startMinute", width=(fmtButtonWidth - fmtPadding)/2, from_=0, to=59, justify=RIGHT)
-	startMinuteSpin.grid(row=1, column=1, sticky=E, padx=fmtPadding, pady=fmtPadding)
+    #Test start hour/minute
+    startLabel = Label(test, text=_("Start time (HH:MM)"))
+    startLabel.grid(row=1, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    startHourSpin = Spinbox(test, name="startHour", width=(fmtButtonWidth - fmtPadding)/2, from_=0, to=23, justify=RIGHT)
+    startHourSpin.grid(row=1, column=1, sticky=W, padx=fmtPadding, pady=fmtPadding)
+    startMinuteSpin = Spinbox(test, name="startMinute", width=(fmtButtonWidth - fmtPadding)/2, from_=0, to=59, justify=RIGHT)
+    startMinuteSpin.grid(row=1, column=1, sticky=E, padx=fmtPadding, pady=fmtPadding)
 
-	#Test lenght per sector
-	lenghtLabel = Label(test, text=_("Duration per line (MM)"))
-	lenghtLabel.grid(row=2, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-	lengthSpin = Spinbox(test, name="length", width=(fmtButtonWidth - fmtPadding)/2, from_=0, to=59, justify=RIGHT)
-	lengthSpin.grid(row=2, column=1, sticky=E, padx=fmtPadding, pady=fmtPadding)
+    #Test lenght per sector
+    lenghtLabel = Label(test, text=_("Duration per line (MM)"))
+    lenghtLabel.grid(row=2, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+    lengthSpin = Spinbox(test, name="length", width=(fmtButtonWidth - fmtPadding)/2, from_=0, to=59, justify=RIGHT)
+    lengthSpin.grid(row=2, column=1, sticky=E, padx=fmtPadding, pady=fmtPadding)
 
-	#Ok button
-	okButton = Button(test, width=fmtButtonWidth, text="Ok", command=createTestPrograms)
-	okButton.grid(row=3, column=0, padx=fmtPadding, pady=fmtPadding)
+    #Ok button
+    okButton = Button(test, width=fmtButtonWidth, text="Ok", command=createTestPrograms)
+    okButton.grid(row=3, column=0, padx=fmtPadding, pady=fmtPadding)
 
-	#Cancel button
-	cancelButton = Button(test, width=fmtButtonWidth, text=_("Cancel"), command=closeTestForm)
-	cancelButton.grid(row=3, column=1, padx=fmtPadding, pady=fmtPadding)
+    #Cancel button
+    cancelButton = Button(test, width=fmtButtonWidth, text=_("Cancel"), command=closeTestForm)
+    cancelButton.grid(row=3, column=1, padx=fmtPadding, pady=fmtPadding)
 
-	makeModal(test,mainWindow)
+    makeModal(test,mainWindow)
 
 def validateProgram():
-	"""
-	Check if the data for the program are valid.
+    """ Check if the data for the program are valid.
 
-	Return a dictionary with program parameters or False.
-	"""
-	global days
+    Return a dictionary with program parameters or False.
+    """
+    global days
 
-	data = {}
+    data = {}
 
-	startHour = int(form.nametowidget("startHour").get())
-	startMinute = int(form.nametowidget("startMinute").get())
-	if 0 <= startHour <= 23 and 0 <= startMinute <= 59:
-		data['start'] = str(startHour).zfill(2) + ":" + str(startMinute).zfill(2)
-	else:
-		showError(_("Wrong start time: %s:%s") % (startHour, startMinute))
-		return False
+    startHour = int(form.nametowidget("startHour").get())
+    startMinute = int(form.nametowidget("startMinute").get())
+    if 0 <= startHour <= 23 and 0 <= startMinute <= 59:
+        data['start'] = str(startHour).zfill(2) + ":" + str(startMinute).zfill(2)
+    else:
+        showError(_("Wrong start time: %s:%s") % (startHour, startMinute))
+        return False
 
-	lengthHours = int(form.nametowidget("lengthHours").get())
-	lengthMinutes = int(form.nametowidget("lengthMinutes").get())
-	if (0 <= lengthHours <= 23 and 1 <= lengthMinutes <=59) or (1 <= lengthHours <= 23 and 0 <= lengthMinutes <=59):
-		data['length'] = str(lengthHours * 60 + lengthMinutes)
-	else:
-		showError(_("Wrong duration: %s:%s") % (lengthHours, lengthMinutes))
-		return False
+    lengthHours = int(form.nametowidget("lengthHours").get())
+    lengthMinutes = int(form.nametowidget("lengthMinutes").get())
+    if (0 <= lengthHours <= 23 and 1 <= lengthMinutes <=59) or (1 <= lengthHours <= 23 and 0 <= lengthMinutes <=59):
+        data['length'] = str(lengthHours * 60 + lengthMinutes)
+    else:
+        showError(_("Wrong duration: %s:%s") % (lengthHours, lengthMinutes))
+        return False
 
-	line = int(form.nametowidget("line").get())
-	if 1 <= line <= 8:
-		data['line'] = str(line)
-	else:
-		showError(_("Wrong line number: %s") % line)
-		return False
+    line = int(form.nametowidget("line").get())
+    if 1 <= line <= 8:
+        data['line'] = str(line)
+    else:
+        showError(_("Wrong line number: %s") % line)
+        return False
 
-	pdays = []
-	for day in days:
-		if form.nametowidget(day).invoke():
-			pdays.append(day)
-	if pdays:
-		data['days'] = pdays
-	else:
-		showError(_("No day was specified"))
-		return False
+    pdays = []
+    for day in days:
+        if form.nametowidget(day).invoke():
+            pdays.append(day)
+    if pdays:
+        data['days'] = pdays
+    else:
+        showError(_("No day was specified"))
+        return False
 
-	return data
+    return data
 
 def loadPrograms():
-	"""
-	Load stored programs in the programs list widget
-	"""
-	global programs, maxPrograms, isConnected
-	
-	#Load programs list (empty it first)
-	programsList.delete(0, END)
-	for p in programs:
-		programsList.insert(END, p.asString())
+    """ Load stored programs in the programs list widget
+    """
+    global programs, maxPrograms, isConnected
 
-	#If we have the maximum number of programs already, prevent new programs
-	#from being created
-	if len(programs) >= maxPrograms:
-		disableButton(newButton)
+    #Load programs list (empty it first)
+    programsList.delete(0, END)
+    for p in programs:
+        programsList.insert(END, p.asString())
 
-	#Enable save button
-	enableButton(saveButton)
+    #If we have the maximum number of programs already, prevent new programs
+    #from being created
+    if len(programs) >= maxPrograms:
+        disableButton(newButton)
 
-	#Enable sync button if the appliance is connected
-	if isConnected:
-		enableButton(syncButton)
+    #Enable save button
+    enableButton(saveButton)
+
+    #Enable sync button if the appliance is connected
+    if isConnected:
+        enableButton(syncButton)
 
 def decodePrograms(programs):
-	"""
-	Decode programs read from the appliance. Programs are stored as comma separated
-	strings, each field having the following meaning:
+    """ Decode programs read from the appliance.
+    Programs are stored as comma separated strings,
+    each field having the following meaning:
 
-	0 - the id
-	1 - start time (four digits, two for the hour and two for the minutes)
-	2 - duration in minutes
-	3 - days of week (hex bitmapped)
-	4 - output line
+    0 - the id
+    1 - start time (four digits, two for the hour and two for the minutes)
+    2 - duration in minutes
+    3 - days of week (hex bitmapped)
+    4 - output line
 
-	Returns an array of program objects.
-	"""
-	global days
+    Returns an array of program objects.
+    """
+    global days
 
-	prgs = []
+    prgs = []
 
-	for prog in programs:
-		p = program()
-		data = prog.split(',')
-		p.startTime(data[1][:2]+':'+data[1][2:])
-		p.length(int(data[2]))
-		p.line(int(data[4])+1)
+    for prog in programs:
+        p = program()
+        data = prog.split(',')
+        p.startTime(data[1][:2]+':'+data[1][2:])
+        p.length(int(data[2]))
+        p.line(int(data[4])+1)
 
-		d = []
-		for n,i in enumerate(days):
-			if (2**n) & int(data[3], 16):
-				d.append(i)
+        d = []
+        for n,i in enumerate(days):
+            if (2**n) & int(data[3], 16):
+                d.append(i)
 
-		p.days(d)
-		prgs.append(p)
-	
-	return prgs
+        p.days(d)
+        prgs.append(p)
+
+    return prgs
 
 def encodePrograms(programs):
-	"""
-	Encode programs in an appliance supported format. See decodePrograms for
-	format details.
+    """ Encode programs in an appliance supported format.
+    See decodePrograms for format details.
 
-	Returns an array of encoded program strings.
-	"""
-	global days
-	prgs = []
+    Returns an array of encoded program strings.
+    """
+    global days
+    prgs = []
 
-	for program in programs:
-		i = 0
-		#Bitmap the days
-		d = 0
-		for day in program.days():
-			i = days.index(day)
-			d = d | 2**i
+    for program in programs:
+        i = 0
+        #Bitmap the days
+        d = 0
+        for day in program.days():
+            i = days.index(day)
+            d = d | 2**i
 
-		#Create the encoded program string
-		p = "%02d,%s,%03d,%2s,%d\n" % (i, \
-			"".join(program.startTime().split(':')), \
-			int(program.length()), \
-			hex(d)[2:], \
-			int(program.line())-1)
+        #Create the encoded program string
+        p = "%02d,%s,%03d,%2s,%d\n" % (i, \
+            "".join(program.startTime().split(':')), \
+            int(program.length()), \
+            hex(d)[2:], \
+            int(program.line())-1)
 
-		prgs.append(p)
-		i += 1
+        prgs.append(p)
+        i += 1
 
-	return prgs
+    return prgs
 
 def askSync():
-	"""
-	Ask the user if the program list has to be synced.
-	"""
-	return tkMessageBox.askyesno(_("Warning!", "Programs list was modified. Sync anyway?"))
+    """ Ask the user if the program list has to be synced.
+    """
+    return tkMessageBox.askyesno(_("Warning!", "Programs list was modified. Sync anyway?"))
 
 def askSave():
-	"""
-	Ask the user if the program list has to be saved.
-	"""
-	return tkMessageBox.askyesno(_("Warning!"), _("Programs list was modified. Save to disk?"))
+    """ Ask the user if the program list has to be saved.
+    """
+    return tkMessageBox.askyesno(_("Warning!"), _("Programs list was modified. Save to disk?"))
 
 def createTestPrograms():
-	"""
-	Create a set of programs to test the appliance.
-	WARNING: this will delete the current programs and reset the appliance.
-	"""
-	global programs, days, toSave
+    """ Create a set of programs to test the appliance.
+    WARNING: this will delete the current programs and reset the appliance.
+    """
+    global programs, days, toSave
 
-	#Get test start time 
-	startHour = int(test.nametowidget("startHour").get())
-	startMinute = int(test.nametowidget("startMinute").get())
+    #Get test start time 
+    startHour = int(test.nametowidget("startHour").get())
+    startMinute = int(test.nametowidget("startMinute").get())
 
-	if not (0 <= startHour <= 23 and 0 <= startMinute <= 59):
-		showError(_("Wrong start time: %s:%s") % (startHour, startMinute))
-		return False
+    if not (0 <= startHour <= 23 and 0 <= startMinute <= 59):
+        showError(_("Wrong start time: %s:%s") % (startHour, startMinute))
+        return False
 
-	length = int(test.nametowidget("length").get())
-	if not 0 < length <= 59:
-		showError(_("Wrong test duration: %s") % length)
-		return False
+    length = int(test.nametowidget("length").get())
+    if not 0 < length <= 59:
+        showError(_("Wrong test duration: %s") % length)
+        return False
 
-	#Get appliance time and calculate if the test is today or tomorrow.
-	#If test time is earlier than current appliance time test will be performed
-	#tomorrow
-	
-	day = None
+    #Get appliance time and calculate if the test is today or tomorrow.
+    #If test time is earlier than current appliance time test will be performed
+    #tomorrow
 
-	now = time.gmtime(float(appliance.time()))
+    day = None
 
-	if startHour < now[3]:
-		day = now[6] + 1
-	elif startHour == now[3]:
-		if startMinute <= now[4]:
-			day = now[6] + 1
-		else:
-			day = now[6]
-	else:
-		day = now[6]
-	
-	#Empty programs list
-	programs = []
+    now = time.gmtime(float(appliance.time()))
 
-	#Create test programs
-	for i in range(8):
-		data = {}
-		data['start'] = str(startHour).zfill(2) + ":" + str(startMinute).zfill(2)
-		data['length'] = length
-		data['line'] = i+1
-		data['days'] = (days[day],)
-		storeProgram('add',data)
+    if startHour < now[3]:
+        day = now[6] + 1
+    elif startHour == now[3]:
+        if startMinute <= now[4]:
+            day = now[6] + 1
+        else:
+            day = now[6]
+    else:
+        day = now[6]
 
-		#Evalute date and time of next program
-		startMinute += length + 1
-		if startMinute > 59:
-			startHour += 1
-			startMinute -=60
-			if startHour > 23:
-				startHour -= 24
-				day += 1
+    #Empty programs list
+    programs = []
 
-	#Sync appliance
-	syncAppliance()
-	toSave = False
+    #Create test programs
+    for i in range(8):
+        data = {}
+        data['start'] = str(startHour).zfill(2) + ":" + str(startMinute).zfill(2)
+        data['length'] = length
+        data['line'] = i+1
+        data['days'] = (days[day],)
+        storeProgram('add',data)
 
-	test.destroy()
+        #Evalute date and time of next program
+        startMinute += length + 1
+        if startMinute > 59:
+            startHour += 1
+            startMinute -=60
+            if startHour > 23:
+                startHour -= 24
+                day += 1
+
+    #Sync appliance
+    syncAppliance()
+    toSave = False
+
+    test.destroy()
 
 def probeDevice(platform):
-	"""
-	Probe which device the appliance is connected to.
-	"""
-	if platform == "Windows":
-		portNumber = subprocess.call("OpenGardenUSB.exe")
-		if portNumber < 1000:
-		        device = "COM" + str(portNumber)
-		else:
-		        device = "COM25"
-	elif platform == "Linux":
-		device = "/dev/ttyUSB0"
-	else:
-		device = "COM25"
-	return device
+    """ Probe which device the appliance is connected to.
+    """
+    if platform == "Windows":
+        portNumber = subprocess.call("OpenGardenUSB.exe")
+        if portNumber < 1000:
+                device = "COM" + str(portNumber)
+        else:
+                device = "COM25"
+    elif platform == "Linux":
+        device = "/dev/ttyUSB0"
+    else:
+        device = "COM25"
+    return device
 
 def setFromLabel(settings,value):
-	"""
-	Return the setting corresponding to the given label
-	"""
-	for setting, label in settings.iteritems():
-		if label == value:
-			return setting
-	return None
+    """ Return the setting corresponding to the given label
+    """
+    for setting, label in settings.iteritems():
+        if label == value:
+            return setting
+    return None
 
-#===============================================================================
+#====================
 # The main window
-#===============================================================================
+#====================
 
 #The main window itself
 
@@ -1002,14 +965,14 @@ disableButton(configureButton)
 disableButton(testButton)
 disableButton(alarmButton)
 
-#===============================================================================
+#====================
 # Start the main loop
-#===============================================================================
+#====================
 
 # Set on wich device the appliance is connected to
 
 device = probeDevice(platform.system())
-		
+
 # Start GUI
 
 mainWindow.mainloop()
