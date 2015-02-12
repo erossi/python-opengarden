@@ -59,6 +59,7 @@ toSync = False #Track if the list of programs nedds to be synced
 
 form = False #Add/Edit program form
 config = False #Configure appliance form
+gui = False #Configure GUI form
 test = False #Test appliace form
 note = False #Note editor window
 
@@ -69,6 +70,8 @@ days = (_("mon"),_("tue"),_("wed"),_("thu"),_("fri"),_("sat"),_("sun"))
 valveSettings = {"bistable":_("Bistable BATT"), "monostable":"24Vac"}
 alarmSettings = {"HIGH":"HIGH = N.C.", "LOW":"LOW = N.O."}
 noteMarker = "#Notes begin here\n"
+tempSettings = {'celsius':'Celsius','fahrenheit':'Fahrenheit'}
+displayTemp = "celsius" #Display temperatures in celsius degrees by default
 
 #====================
 # Interface layout settings
@@ -182,6 +185,11 @@ def closeTestForm():
     """ Close appliance test form (cancel action)
     """
     test.destroy()
+
+def closeGuiForm():
+    """ Close GUI configuration form (cancel action)
+    """
+    gui.destroy()
 
 def closeConfigForm():
     """ Close appliance configuration form (cancel action)
@@ -329,6 +337,15 @@ def syncAppliance():
 
     disableButton(syncButton)
 
+def configGui(tempOptions,temp):
+    """ Config GUI
+    """
+    global gui
+    global displayTemp
+
+    displayTemp = setFromLabel(tempSettings,temp.get())
+    gui.destroy()
+
 def configAppliance(site,siteOptions,valve,led,alarm):
     """ Config the appliance
     """
@@ -397,6 +414,15 @@ def storeNoteContent(event,widget):
 #====================
 # General functions
 #====================
+
+def ogTemp(temp):
+    """ Return temperature according to GUI settings
+    """
+    global displayTemp
+    if displayTemp == 'fahrenheit':
+        return (float(temp) * 9/5) + 32
+    else:
+        return temp
 
 def showError(string):
     """ Display an error message.
@@ -524,12 +550,39 @@ def displayProgramForm(action, program=None):
 
     makeModal(form,mainWindow)
 
+def displayGuiForm():
+    """ Display the form to configure the GUI
+    """
+    global gui
+    gui = Toplevel(mainWindow)
+    gui.title(_("Configure GUI"))
+
+    #Display temperature
+    tempLabel = Label(gui, text=_("Display temperatures"))
+    tempLabel.grid(row=0, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+
+    tempOptions = tempSettings.values()
+    tempVar = StringVar()
+    tempVar.set(tempSettings[displayTemp])
+    tempMenu = OptionMenu(gui, tempVar, *tempOptions)
+    tempMenu.grid(row=0, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+
+    #Apply button
+    applyButton = Button(gui, width=fmtButtonWidth, text=_("Apply"), command=(lambda: configGui(tempSettings,tempVar)))
+    applyButton.grid(row=1, column=0, padx=fmtPadding, pady=fmtPadding)
+
+    #Cancel button
+    cancelButton = Button(gui, width=fmtButtonWidth, text=_("Cancel"), command=closeGuiForm)
+    cancelButton.grid(row=1, column=1, padx=fmtPadding, pady=fmtPadding)
+
+    makeModal(gui,mainWindow)
+
 def displayConfigForm():
     """ Display the form to configure the appliance
     """
     global config
     global appliance
-    fahrenheit = False
+    global displayTemp
 
     config = Toplevel(mainWindow)
     config.title(_("Configure appliance"))
@@ -565,13 +618,7 @@ def displayConfigForm():
 
     tempLabel = Label(config, text=_("Temperature"))
     tempLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-
-    if fahrenheit:
-        fTemp = (float(temperature[0]) * 9/5) + 32
-        tempValueLabel = Label(config, text=fTemp)
-    else:
-        tempValueLabel = Label(config, text=temperature[0])
-
+    tempValueLabel = Label(config, text=ogTemp(temperature[0]))
     tempValueLabel.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
     row+=1
 
@@ -579,12 +626,7 @@ def displayConfigForm():
     avgTempLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
     row+=1
 
-    if fahrenheit:
-        fAvgTemp = (float(temperature[1]) * 9/5) + 32
-        avgTempValueLabel = Label(config, text=fAvgTemp)
-    else:
-        avgTempValueLabel = Label(config, text=temperature[1])
-
+    avgTempValueLabel = Label(config, text=ogTemp(temperature[1]))
     avgTempValueLabel.grid(row=row, column=1, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
     row*=1
 
@@ -598,9 +640,9 @@ def displayConfigForm():
     siteLabel = Label(config, text=_("Average external temperature"))
     siteLabel.grid(row=row, column=0, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
 
-    if fahrenheit:
-        siteOptions =("75 to 93 degrees", "68 to 90 degrees", \
-                "59 to 77 degrees")
+    if displayTemp == 'fahrenheit':
+        siteOptions =(_("75 to 93 degrees"), _("68 to 90 degrees"), \
+                _("59 to 77 degrees"))
     else:
         siteOptions =(_("24 to 34 degrees"), _("20 to 32 degrees"), \
                 _("15 to 25 degrees"))
@@ -931,6 +973,8 @@ mainWindow.protocol("WM_DELETE_WINDOW", exit)
 #"Connector"
 connectButton = Button(width=fmtButtonWidth)
 connectLabel = Label()
+#Configure GUI button
+guiButton = Button(width=fmtButtonWidth, text=_("Configure GUI"), command=displayGuiForm)
 #Configure appliance button
 configureButton = Button(width=fmtButtonWidth, text=_("Configure appliance"), command=displayConfigForm)
 #Test appliance button
@@ -954,7 +998,7 @@ programsList = Listbox(height=maxPrograms, selectmode=SINGLE)
 programsList.bind("<<ListboxSelect>>", selectedProgram)
 #Alarms status bar
 alarmStatus = Label()
-alarmButton = Button(text=_("Check allarms"), command=checkAlarms, width=fmtButtonWidth)
+alarmButton = Button(text=_("Check alarms"), command=checkAlarms, width=fmtButtonWidth)
 #Manage notes button
 notesButton = Button(width=fmtButtonWidth, text=_("Notes"), command=openNoteEditor)
 
@@ -964,16 +1008,17 @@ loadButton.grid(row=0, column=1, padx=fmtPadding, pady=fmtPadding)
 saveButton.grid(row=0, column=2, padx=fmtPadding, pady=fmtPadding)
 exitButton.grid(row=0, column=3, padx=fmtPadding, pady=fmtPadding)
 connectLabel.grid(row=1, column=0, columnspan=2, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
+guiButton.grid(row=1, column=2, padx=fmtPadding, pady=fmtPadding)
 configureButton.grid(row=1, column=3, padx=fmtPadding, pady=fmtPadding)
 notesButton.grid(row=1, column=1, padx=fmtPadding, pady=fmtPadding)
-testButton.grid(row=1, column=2, padx=fmtPadding, pady=fmtPadding)
 newButton.grid(row=3, column=0, padx=fmtPadding, pady=fmtPadding)
 editButton.grid(row=3, column=1, padx=fmtPadding, pady=fmtPadding)
 deleteButton.grid(row=3, column=2, padx=fmtPadding, pady=fmtPadding)
 syncButton.grid(row=3, column=3, padx=fmtPadding, pady=fmtPadding)
 programsList.grid(row=2, column=0, columnspan=4, padx=fmtPadding, pady=fmtPadding, sticky=N+W+E+S)
 alarmStatus.grid(row=4, column=0, columnspan=3, padx=fmtPadding, pady=fmtPadding, sticky=N+W)
-alarmButton.grid(row=4, column=3, padx=fmtPadding, pady=fmtPadding)
+alarmButton.grid(row=4, column=2, padx=fmtPadding, pady=fmtPadding)
+testButton.grid(row=4, column=3, padx=fmtPadding, pady=fmtPadding)
 
 #Set interface initial status
 setConnectorStatus()
