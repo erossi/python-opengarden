@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (C) 2011 Alessandro Dotti Contra <alessandro@hyboria.org>
+# Copyright (C) 2011-2015 Alessandro Dotti Contra <alessandro@hyboria.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published

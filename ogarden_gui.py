@@ -2,7 +2,7 @@
 #
 # OpenGardenGui: a gui to control the OpenGarden appliance.
 #
-# Copyright (C) 2001 Alessandro Dotti Contra <alessandro@hyboria.org>
+# Copyright (C) 2011-2015 Alessandro Dotti Contra <alessandro@hyboria.org>
 #
 # This software is free software and is released under the terms of
 # the GPL version 3.
