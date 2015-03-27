@@ -37,7 +37,11 @@ def init_localization():
     """
     locale.setlocale(locale.LC_ALL, '')    # Use user's preferred locale
     loc = locale.getdefaultlocale()        # Locale in use
-    t = gettext.translation('opengarden', 'locale', loc, fallback=True)
+
+    # insert the absolute path of the locale directory
+    # dirty hacks waiting config file.
+    # FIXME
+    t = gettext.translation('opengarden', '/home/pi/python-opengarden/locale', loc, fallback=True)
     t.install()
 
 init_localization()
