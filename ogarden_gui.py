@@ -66,7 +66,7 @@ note			= False			#Note editor window
 programs		= []			#List of programs
 noteContent		= ''			#Notes associated with programs
 
-days			= (_("mon"),_("tue"),_("wed"),_("thu"),_("fri"),_("sat"),_("sun"))
+days			= (_("sun"),_("mon"),_("tue"),_("wed"),_("thu"),_("fri"),_("sat"))
 valveSettings	= {"bistable":_("Bistable BATT"), "monostable":"24Vac"}
 alarmSettings	= {"HIGH":"HIGH = N.C.", "LOW":"LOW = N.O."}
 noteMarker		= "#Notes begin here\n"
@@ -503,20 +503,20 @@ def displayProgramForm(action, program=None):
 	lengthMinuteSpin.grid(row=2, column=1, sticky=E, padx=fmtPadding, pady=fmtPadding)
 	
 	#Days of week
-	(mon, tue, wed, thu, fri, sat, sun) = (IntVar(), IntVar(), IntVar(), IntVar(), IntVar(), IntVar(), IntVar())
-	chkMonday = Checkbutton(form, name=days[0], text=days[0].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=mon, command=(lambda day=mon: checkDay(day)))
+	(sun, mon, tue, wed, thu, fri, sat) = (IntVar(), IntVar(), IntVar(), IntVar(), IntVar(), IntVar(), IntVar())
+	chkMonday = Checkbutton(form, name=days[1], text=days[1].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=mon, command=(lambda day=mon: checkDay(day)))
 	chkMonday.grid(row=4, column=0, sticky=W, padx=fmtPadding, pady=fmtPadding)
-	chkTuesday = Checkbutton(form, name=days[1], text=days[1].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=tue, command=(lambda day=tue: checkDay(day)))
+	chkTuesday = Checkbutton(form, name=days[2], text=days[2].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=tue, command=(lambda day=tue: checkDay(day)))
 	chkTuesday.grid(row=4, column=0, sticky=E, padx=fmtPadding, pady=fmtPadding)
-	chkWednesday = Checkbutton(form, name=days[2], text=days[2].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=wed, command=(lambda day=wed: checkDay(day)))
+	chkWednesday = Checkbutton(form, name=days[3], text=days[3].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=wed, command=(lambda day=wed: checkDay(day)))
 	chkWednesday.grid(row=4, column=1, sticky=W, padx=fmtPadding, pady=fmtPadding)
-	chkThursday = Checkbutton(form, name=days[3], text=days[3].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=thu, command=(lambda day=thu: checkDay(day)))
+	chkThursday = Checkbutton(form, name=days[4], text=days[4].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=thu, command=(lambda day=thu: checkDay(day)))
 	chkThursday.grid(row=4, column=1, sticky=E, padx=fmtPadding, pady=fmtPadding)
-	chkFriday = Checkbutton(form, name=days[4], text=days[4].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=fri, command=(lambda day=fri: checkDay(day)))
+	chkFriday = Checkbutton(form, name=days[5], text=days[5].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=fri, command=(lambda day=fri: checkDay(day)))
 	chkFriday.grid(row=5, column=0, sticky=W, padx=fmtPadding, pady=fmtPadding)
-	chkSaturday = Checkbutton(form, name=days[5], text=days[5].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=sat, command=(lambda day=sat: checkDay(day)))
+	chkSaturday = Checkbutton(form, name=days[6], text=days[6].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=sat, command=(lambda day=sat: checkDay(day)))
 	chkSaturday.grid(row=5, column=0, sticky=E, padx=fmtPadding, pady=fmtPadding)
-	chkSunday = Checkbutton(form, name=days[6], text=days[6].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=sun, command=(lambda day=sun: checkDay(day)))
+	chkSunday = Checkbutton(form, name=days[0], text=days[0].capitalize(), width=(fmtButtonWidth - fmtPadding)/2, variable=sun, command=(lambda day=sun: checkDay(day)))
 	chkSunday.grid(row=5, column=1, sticky=W, padx=fmtPadding, pady=fmtPadding)
 
 	#Ok button
